@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elishah Rides — Secure Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="admin-body">
+<header class="admin-top"><a class="brand" href="index.html"><span>ELISHAH</span><small>RIDES</small></a><div><span id="userEmail"></span> <button id="logout" class="text-btn" style="color:#d7c49d">Logout</button></div></header>
+<main class="admin-wrap">
+  <section id="loginPanel" class="login-panel">
+    <p class="eyebrow">SECURE ADMIN</p><h1>Admin Login</h1><p class="muted">Use the email/password account created in Supabase Authentication.</p>
+    <form id="loginForm"><input id="email" type="email" placeholder="Admin email" required><input id="password" type="password" placeholder="Password" required><button class="btn primary">Sign In</button><p id="loginMsg" class="result"></p></form>
+  </section>
+  <section id="dashboard" hidden>
+    <div class="admin-title"><div><p class="eyebrow">ADMIN DASHBOARD</p><h1>Booking Management</h1><p class="muted">Live bookings from Supabase.</p></div></div>
+    <div class="stats"><div><b id="total">0</b><span>Total</span></div><div><b id="pending">0</b><span>Pending</span></div><div><b id="confirmed">0</b><span>Confirmed</span></div><div><b id="completed">0</b><span>Completed</span></div></div>
+    <div class="toolbar"><input id="search" placeholder="Search reference, name, phone..."><select id="filter"><option value="All">All statuses</option><option>Pending</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select></div>
+    <div id="empty" class="empty">No booking requests yet.</div><div id="bookingList" class="booking-list"></div>
+    <section class="availability-panel">
+      <div class="admin-title"><div><p class="eyebrow">FLEET AVAILABILITY</p><h2>Vehicle Availability</h2><p class="muted">Block a vehicle on specific dates when it is unavailable.</p></div></div>
+      <div class="availability-toolbar">
+        <select id="vehicleSelect"></select><input id="blockDate" type="date"><input id="blockReason" placeholder="Reason (optional)"><button id="blockVehicle" class="btn primary">Block Date</button>
+      </div>
+      <div id="availabilityMsg" class="result"></div>
+      <div id="vehicleAvailability" class="vehicle-availability"></div>
+    </section>
+
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script><script src="admin.js"></script>
+
+<section class="admin-section admin-calendar-section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">OPERATIONS</span>
+      <h2>Booking Calendar</h2>
+      <p>See daily bookings, statuses, and vehicle availability in one place.</p>
+    </div>
+    <div class="calendar-controls">
+      <button class="btn btn-secondary" id="prevMonth" type="button">←</button>
+      <strong id="calendarMonthLabel"></strong>
+      <button class="btn btn-secondary" id="nextMonth" type="button">→</button>
+      <button class="btn btn-secondary" id="todayMonth" type="button">Today</button>
+    </div>
+  </div>
+  <div class="calendar-layout">
+    <div class="calendar-card">
+      <div class="calendar-weekdays">
+        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+        <span>Thu</span><span>Fri</span><span>Sat</span>
+      </div>
+      <div id="bookingCalendarGrid" class="calendar-grid"></div>
+    </div>
+    <aside class="day-panel">
+      <div class="day-panel-head">
+        <div><span class="eyebrow">SELECTED DAY</span><h3 id="selectedDayLabel">Select a date</h3></div>
+        <span class="day-count" id="selectedDayCount">0 bookings</span>
+      </div>
+      <div id="selectedDayBookings" class="day-bookings">
+        <p class="empty-state">Click a date to view its bookings.</p>
+      </div>
+      <div class="day-vehicles">
+        <div class="mini-head"><h4>Vehicle availability</h4><span id="selectedVehicleSummary">—</span></div>
+        <div id="selectedDayVehicles" class="vehicle-status-list"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<div class="modal" id="bookingDetailModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close-booking-modal></div>
+  <div class="modal-card booking-detail-modal">
+    <button class="modal-close" type="button" data-close-booking-modal aria-label="Close">×</button>
+    <span class="eyebrow">BOOKING DETAILS</span>
+    <h2 id="detailRef">Booking</h2>
+    <div id="bookingDetailBody" class="booking-detail-body"></div>
+    <div class="detail-actions">
+      <button class="btn btn-secondary" id="detailWhatsApp" type="button">WhatsApp</button>
+      <button class="btn btn-primary" id="detailConfirm" type="button">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+
+<section class="admin-section v7-pricing-section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">REVENUE</span>
+      <h2>Pricing Rules</h2>
+      <p>Manage USD starting prices used by the booking estimate.</p>
+    </div>
+  </div>
+  <form id="pricingForm" class="pricing-form">
+    <select id="priceService" required>
+      <option value="Airport Transfer">Airport Transfer</option>
+      <option value="Chauffeur-Driven Vehicle Hire">Chauffeur-Driven Vehicle Hire</option>
+      <option value="Private Day Tours">Private Day Tours</option>
+      <option value="Multi-Day Tours">Multi-Day Tours</option>
+      <option value="Custom Sri Lanka Tours">Custom Sri Lanka Tours</option>
+      <option value="Corporate Travel">Corporate Travel</option>
+      <option value="Hotel Transfers">Hotel Transfers</option>
+    </select>
+    <input id="priceVehicle" placeholder="Vehicle name (optional)">
+    <input id="priceTripType" placeholder="Trip type (optional)">
+    <input id="priceBase" type="number" min="0" step="0.01" placeholder="Base USD" required>
+    <input id="priceKm" type="number" min="0" step="0.01" placeholder="USD / km">
+    <input id="priceDay" type="number" min="0" step="0.01" placeholder="USD / day">
+    <button class="btn btn-primary" type="submit">Add Pricing Rule</button>
+  </form>
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>Service</th><th>Vehicle</th><th>Trip</th><th>Base</th><th>/ km</th><th>/ day</th><th>Action</th></tr></thead>
+      <tbody id="pricingRows"><tr><td colspan="7">Loading pricing…</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+
+<section class="admin-section v8-production-section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">PRODUCTION</span>
+      <h2>Payment & Notification Status</h2>
+      <p>Track payment and customer notification state without exposing payment secrets.</p>
+    </div>
+  </div>
+  <div class="v8-status-cards">
+    <div class="v8-status-card"><span>Payment provider</span><strong id="v8ProviderLabel">Not configured</strong></div>
+    <div class="v8-status-card"><span>Business email</span><strong id="v8EmailLabel">Configured</strong></div>
+    <div class="v8-status-card"><span>WhatsApp</span><strong id="v8WhatsappLabel">Configured</strong></div>
+  </div>
+  <p class="v8-warning">Payment credentials and email API keys must be stored server-side. This dashboard never accepts merchant secrets.</p>
+</section>
+
+</body></html>
