@@ -57,3 +57,39 @@ img{content-visibility:auto}
 @media(max-width:700px){.availability-vehicle-row{grid-template-columns:70px 1fr}.availability-vehicle-row .btn-book-vehicle{grid-column:1/-1;width:100%;text-align:center}.vehicle-art{height:55px}.line-vehicle{height:90px}}
 
 .payment-info{border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:20px;background:rgba(255,255,255,.03);margin-top:-4px}.payment-info h3{margin:4px 0 10px}.payment-info p{margin:6px 0}.payment-info small{opacity:.72}.payment-info[hidden]{display:none}
+
+/* V17 — redesigned vehicle availability page */
+.availability-page{background:#f6f2ea;color:#1d2923}
+.availability-page .nav{background:rgba(255,255,255,.94);border-bottom:1px solid #e7e0d4;backdrop-filter:blur(14px)}
+.availability-page .availability-hero{padding:132px 7% 52px;background:radial-gradient(circle at 85% 15%,rgba(201,169,106,.18),transparent 28%),linear-gradient(125deg,#10231d 0%,#1b2e26 60%,#24382f 100%);position:relative;overflow:hidden}
+.availability-page .availability-hero:after{content:"";position:absolute;width:340px;height:340px;border:1px solid rgba(201,169,106,.18);border-radius:50%;right:-90px;bottom:-180px}
+.availability-page .availability-hero h1{max-width:850px;letter-spacing:-1px}
+.availability-page .availability-hero p:not(.eyebrow){font-size:16px;max-width:720px}
+.availability-page .availability-section{padding-top:30px;background:#f6f2ea}
+.availability-page .panel-light{max-width:none;grid-template-columns:minmax(0,1fr) 220px 210px;padding:14px;border-radius:20px;box-shadow:0 18px 45px rgba(27,35,30,.07);position:relative;margin-top:-1px}
+.availability-page .panel-light input{height:48px;border-radius:12px;background:#fbfaf7}
+.availability-page .panel-light .btn{height:48px;border-radius:12px}
+.availability-page .availability-status{background:#fff;border:1px solid #e4ddd2;border-radius:14px;padding:13px 16px;min-height:0}
+.availability-page .customer-availability-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.availability-page .customer-availability-card{padding:14px;border-radius:22px;box-shadow:0 14px 40px rgba(28,35,30,.06);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.availability-page .customer-availability-card:hover{transform:translateY(-3px);box-shadow:0 20px 48px rgba(28,35,30,.1);border-color:#d4c6ad}
+.availability-page .line-vehicle{height:185px;margin-bottom:15px;border-radius:16px;background:linear-gradient(145deg,#fbfaf7,#eee8dc);border:1px solid #eee6da}
+.availability-page .line-vehicle img{width:90%;height:92%;mix-blend-mode:normal}
+.availability-page .availability-card-top{padding:0 6px}
+.availability-page .vehicle-type{color:#a17a3e}
+.availability-page .customer-availability-card h2{font-size:31px;margin:10px 6px 7px}
+.availability-page .customer-availability-card>p{margin:0 6px}
+.availability-page .customer-availability-card>p i{font-style:normal;color:#c7b79b;padding:0 2px}
+.availability-page .availability-count{margin:20px 6px 14px}
+.availability-page .availability-count strong{font-size:40px}
+.availability-page .availability-line{margin:0 6px 13px;gap:12px;min-height:42px}
+.availability-page .category-action{margin:2px 6px 4px;padding:11px 13px;border-radius:10px;background:#f7f0e4;color:#9a7236}
+.availability-page .category-toggle[aria-expanded="true"] .category-action{background:#10231d;color:#fff}
+.availability-page .category-vehicles{margin:15px 0 0;padding:14px 0 0}
+.availability-page .availability-vehicle-row{grid-template-columns:82px 1fr;position:relative;padding:11px;border-radius:14px}
+.availability-page .vehicle-art{height:65px}
+.availability-page .vehicle-main{padding-right:0}
+.availability-page .btn-book-vehicle{grid-column:1/-1;width:100%;text-align:center;border-radius:10px}
+.availability-page .availability-note{margin-top:26px;border-radius:20px;padding:25px 27px}
+@media(max-width:1000px){.availability-page .customer-availability-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.availability-page .panel-light{grid-template-columns:1fr 180px auto}}
+@media(max-width:700px){.availability-page .availability-hero{padding:110px 5% 45px}.availability-page .panel-light{grid-template-columns:1fr}.availability-page .customer-availability-grid{grid-template-columns:1fr}.availability-page .line-vehicle{height:170px}}

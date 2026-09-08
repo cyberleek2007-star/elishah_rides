@@ -50,3 +50,6 @@ Bank Transfer details shown to customers:
 PayPal is currently a **manual payment-link flow**: the customer selects PayPal, submits the booking, and the payment link can be provided after the booking is confirmed. No PayPal credentials are stored in the website.
 
 Run the latest `V15-VEHICLE-CATEGORY-BOOKING.sql` in Supabase SQL Editor once. It adds the payment method/reference columns if they do not already exist.
+
+## V17 vehicle categories
+V17 replaces the old categories with Bike, Scooter, Flex, Car, Mini Van and Bus. Run `V17-VEHICLE-CATEGORIES.sql` once after deploying V17.
