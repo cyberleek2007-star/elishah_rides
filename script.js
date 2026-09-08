@@ -20,7 +20,8 @@ function chooseTour(name){document.querySelector('[name="service"]').value=name.
 function chooseVehicle(name){document.querySelector('[name="vehicle"]').value=name;document.getElementById("booking").scrollIntoView({behavior:"smooth"});}
 
 async function isVehicleAvailable(vehicleName,date){
- if(!sb) return true;
+ await supabaseClientReady;
+ if(!sb) return false;
  const {data:v}=await sb.from("vehicles").select("id,active").eq("name",vehicleName).eq("active",true).maybeSingle();
  if(!v) return false;
  const {data:block}=await sb.from("vehicle_blocks").select("id").eq("vehicle_id",v.id).eq("block_date",date).maybeSingle();
@@ -29,12 +30,23 @@ async function isVehicleAvailable(vehicleName,date){
 
 const form=document.getElementById("bookingForm");
 let sb=null;
-if(window.supabase && window.SUPABASE_URL && !window.SUPABASE_URL.startsWith("YOUR_")){
-  sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+
+async function initSupabaseClient(){
+  try {
+    const ready = await (window.supabaseConfigReady || Promise.resolve(false));
+    if(ready && window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY){
+      sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+    }
+  } catch(error){
+    console.error("Supabase client initialization failed:", error);
+  }
+  return sb;
 }
+const supabaseClientReady = initSupabaseClient();
 function makeRef(){return "ER-"+new Date().getFullYear()+"-"+Math.random().toString(36).slice(2,7).toUpperCase();}
 if(form) form.addEventListener("submit",async e=>{
  e.preventDefault();
+ await supabaseClientReady;
  const result=document.getElementById("bookingResult");
  const data=Object.fromEntries(new FormData(form).entries());
  const ref=makeRef();
@@ -56,8 +68,9 @@ if(form) form.addEventListener("submit",async e=>{
 /* V7 Pricing Estimate */
 let v7PricingCache = [];
 async function v7LoadPublicPricing() {
-  if (typeof supabase === "undefined") return;
-  const {data} = await supabase.from("pricing_rules").select("*").eq("active", true);
+  await supabaseClientReady;
+  if (!sb) return;
+  const {data} = await sb.from("pricing_rules").select("*").eq("active", true);
   v7PricingCache = data || [];
   v7UpdateEstimate();
 }

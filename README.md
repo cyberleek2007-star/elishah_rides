@@ -20,3 +20,7 @@ Secure server-side payment and notification foundation added. Gateway-specific c
 
 ## V10
 Final premium UI/UX polish, accessibility/performance touches, SEO metadata, trust strip, and launch checklist.
+
+
+## V11
+V11 wires the existing Supabase frontend to Vercel Environment Variables through a small Vercel serverless `/api/config` endpoint. The Supabase publishable/anon key is public client configuration; service-role/secret keys remain server-side and are not exposed.

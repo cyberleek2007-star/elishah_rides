@@ -75,15 +75,15 @@ function v6StatusClass(status) { return String(status||"Pending").toLowerCase().
 
 async function v6LoadBlocks() {
   try {
-    const {data} = await supabase.from("vehicle_blocks").select("*");
+    const {data} = await sb.from("vehicle_blocks").select("*");
     window.v6BlocksCache = data || [];
   } catch(e) { window.v6BlocksCache = []; }
 }
 async function v6LoadData() {
   try {
     const [b,v] = await Promise.all([
-      supabase.from("bookings").select("*").order("travel_date",{ascending:true}),
-      supabase.from("vehicles").select("*").order("name",{ascending:true})
+      sb.from("bookings").select("*").order("travel_date",{ascending:true}),
+      sb.from("vehicles").select("*").order("name",{ascending:true})
     ]);
     v6BookingsCache = b.data || [];
     v6VehiclesCache = v.data || [];
@@ -158,7 +158,7 @@ function v6CloseModal(){const m=document.getElementById("bookingDetailModal");m.
 async function v6ToggleConfirm(){
   if(!v6CurrentDetailBooking)return;
   const status=v6CurrentDetailBooking.status==="Confirmed"?"Pending":"Confirmed";
-  const {error}=await supabase.from("bookings").update({status}).eq("id",v6CurrentDetailBooking.id);
+  const {error}=await sb.from("bookings").update({status}).eq("id",v6CurrentDetailBooking.id);
   if(error){alert(error.message);return;}
   await v6LoadData(); v6OpenBooking(v6CurrentDetailBooking.ref);
 }
@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 async function v7LoadPricing() {
   const tbody = document.getElementById("pricingRows");
   if (!tbody) return;
-  const {data, error} = await supabase.from("pricing_rules").select("*").order("service").order("vehicle");
+  const {data, error} = await sb.from("pricing_rules").select("*").order("service").order("vehicle");
   if (error) { tbody.innerHTML = `<tr><td colspan="7">${v6Esc(error.message)}</td></tr>`; return; }
   tbody.innerHTML = data?.length ? data.map(p => `
     <tr>
@@ -194,7 +194,7 @@ async function v7LoadPricing() {
     </tr>`).join("") : `<tr><td colspan="7">No pricing rules yet.</td></tr>`;
   tbody.querySelectorAll("[data-delete-price]").forEach(btn => btn.addEventListener("click", async()=>{
     if (!confirm("Delete this pricing rule?")) return;
-    const {error} = await supabase.from("pricing_rules").delete().eq("id", btn.dataset.deletePrice);
+    const {error} = await sb.from("pricing_rules").delete().eq("id", btn.dataset.deletePrice);
     if (error) alert(error.message); else v7LoadPricing();
   }));
 }
@@ -210,7 +210,7 @@ async function v7AddPricing(e) {
     currency: "USD",
     active: true
   };
-  const {error} = await supabase.from("pricing_rules").insert(payload);
+  const {error} = await sb.from("pricing_rules").insert(payload);
   if (error) { alert(error.message); return; }
   e.target.reset();
   v7LoadPricing();
