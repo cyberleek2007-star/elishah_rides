@@ -143,6 +143,27 @@
   </div>
 </section>
 
+<section id="experiences" class="section er-community-v27">
+  <div class="er-community-wrap">
+    <div class="er-community-head">
+      <div><p class="eyebrow">TRAVELLER STORIES</p><h2>Share the journey.<br><em>Be part of it.</em></h2></div>
+      <p>Share a Sri Lankan travel moment with the Elishah Rides community. Upload a photo, leave a comment, and inspire the next journey.</p>
+    </div>
+    <div class="er-community-actions">
+      <button class="btn primary" type="button" onclick="openCommunityUpload()">Upload your photo <span>↗</span></button>
+      <span>Photos are reviewed before appearing publicly.</span>
+    </div>
+    <div id="communityGallery" class="er-community-gallery"><p class="community-loading">Loading traveller stories…</p></div>
+    <div class="er-community-comments">
+      <div class="er-community-comments-head"><div><p class="eyebrow">COMMUNITY NOTES</p><h3>What travellers say</h3></div><button class="text-btn" type="button" onclick="openCommunityComment()">Leave a comment →</button></div>
+      <div id="communityComments" class="er-community-comment-list"><p class="community-loading">Loading comments…</p></div>
+    </div>
+  </div>
+</section>
+
+<div id="communityUploadModal" class="community-modal" aria-hidden="true"><div class="community-modal-card"><button class="community-close" type="button" onclick="closeCommunityModal('communityUploadModal')">×</button><p class="eyebrow">SHARE A MOMENT</p><h3>Upload your travel photo</h3><p>Your submission will be reviewed before it becomes visible to everyone.</p><form id="communityUploadForm" class="community-form"><input name="name" placeholder="Your name" maxlength="80" required><input name="caption" placeholder="Tell us about this moment" maxlength="180"><input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required><button class="btn primary" type="submit">Submit photo</button><small id="communityUploadMsg"></small></form></div></div>
+<div id="communityCommentModal" class="community-modal" aria-hidden="true"><div class="community-modal-card"><button class="community-close" type="button" onclick="closeCommunityModal('communityCommentModal')">×</button><p class="eyebrow">COMMUNITY NOTE</p><h3>Leave a comment</h3><form id="communityCommentForm" class="community-form"><input name="name" placeholder="Your name" maxlength="80" required><textarea name="comment" placeholder="Share your experience…" maxlength="500" rows="5" required></textarea><button class="btn primary" type="submit">Post comment</button><small id="communityCommentMsg"></small></form></div></div>
+
 <section id="booking" class="section booking-section">
   <div class="section-head"><p class="eyebrow">BOOKING REQUEST</p><h2>Tell us about your journey.</h2><p>No customer account required. Submit your travel details and we will contact you.</p></div>
   <form id="bookingForm" class="booking-form">
