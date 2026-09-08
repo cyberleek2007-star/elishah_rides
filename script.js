@@ -22,10 +22,16 @@ function chooseVehicle(name){document.querySelector('[name="vehicle"]').value=na
 async function isVehicleAvailable(vehicleName,date){
  await supabaseClientReady;
  if(!sb) return false;
- const {data:v}=await sb.from("vehicles").select("id,active").eq("name",vehicleName).eq("active",true).maybeSingle();
- if(!v) return false;
- const {data:block}=await sb.from("vehicle_blocks").select("id").eq("vehicle_id",v.id).eq("block_date",date).maybeSingle();
- return !block;
+ const {data:units,error:ue}=await sb.from("vehicle_units").select("id").eq("category",vehicleName).eq("active",true);
+ if(ue||!units?.length) return false;
+ const ids=units.map(x=>x.id);
+ const {data:blocks,error:be}=await sb.from("vehicle_unit_blocks").select("vehicle_unit_id").in("vehicle_unit_id",ids).eq("block_date",date);
+ if(be) return false;
+ const blocked=new Set((blocks||[]).map(x=>x.vehicle_unit_id));
+ const free=Math.max(0,ids.filter(id=>!blocked.has(id)).length);
+ const {data:booked,error:ke}=await sb.from("bookings").select("id").eq("travel_date",date).eq("vehicle",vehicleName).in("status",["Pending","Confirmed"]);
+ if(ke) return false;
+ return free>(booked||[]).length;
 }
 
 const form=document.getElementById("bookingForm");
