@@ -44,7 +44,7 @@ async function boot(){
   document.querySelectorAll(".admin-menu a").forEach(a=>{if(a.dataset.page===pageName)a.classList.add("active");});
   document.getElementById("logout")?.addEventListener("click",async()=>{await sb.auth.signOut();location.replace("admin.html");});
   document.getElementById("mobileMenu")?.addEventListener("click",()=>document.querySelector(".admin-sidebar")?.classList.toggle("open"));
-  if(pageName==="dashboard")await loadDashboard();
+  if(pageName==="dashboard"){await loadDashboard();await loadCommunityDashboardSummary();}
   if(pageName==="bookings"){await loadBookings(); const ref=new URLSearchParams(location.search).get("ref"); if(ref)openBooking(ref);}
   if(pageName==="calendar")await initCalendar();
   if(pageName==="vehicles")await initVehicles();
@@ -146,6 +146,18 @@ document.getElementById("detailPaid")?.addEventListener("click",markPaid);
 }
 
 /* Dashboard */
+async function loadCommunityDashboardSummary(){
+  const badge=document.getElementById("communityPendingBadge");
+  if(!badge)return;
+  const [photos,comments]=await Promise.all([
+    sb.from("community_photos").select("status"),
+    sb.from("community_comments").select("status")
+  ]);
+  if(photos.error||comments.error){badge.textContent="Open moderation";return;}
+  const total=(photos.data||[]).filter(x=>x.status==="pending").length+(comments.data||[]).filter(x=>x.status==="pending").length;
+  badge.textContent=total?`${total} pending`:"All reviewed";
+}
+
 async function loadDashboard(){
   const data=await safeBookings();
   const counts={total:data.length,Pending:0,Confirmed:0,Completed:0,Cancelled:0,Paid:0};
