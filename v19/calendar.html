@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Calendar — Elishah Rides Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head><body class="admin-app" data-admin-page="calendar">
+<aside class="admin-sidebar">
+  <a class="brand admin-brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a>
+  <div class="admin-user"><span>Signed in as</span><strong id="userEmail">Admin</strong></div>
+  <nav class="admin-menu">
+    <a href="dashboard.html" data-page="dashboard">⌂ <span>Dashboard</span></a>
+    <a href="bookings.html" data-page="bookings">▣ <span>Bookings</span></a>
+    <a href="calendar.html" data-page="calendar">□ <span>Calendar</span></a>
+    <a href="vehicles.html" data-page="vehicles">▱ <span>Vehicles</span></a>
+    <a href="pricing.html" data-page="pricing">$ <span>Pricing</span></a>
+    <a href="settings.html" data-page="settings">⚙ <span>Settings</span></a>
+  </nav>
+  <div class="admin-sidebar-bottom"><a href="index.html">View website</a><button id="logout" type="button">Log out</button></div>
+</aside>
+<header class="admin-mobile-top"><a class="brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a><button id="mobileMenu" type="button">☰</button></header><main class="admin-main"><div class="admin-content"><div class="page-heading"><div><p class="eyebrow">OPERATIONS</p><h1>Booking Calendar</h1><p>See bookings and vehicle availability by date.</p></div><div class="calendar-controls"><button class="btn btn-secondary" id="prevMonth">←</button><strong id="calendarMonthLabel"></strong><button class="btn btn-secondary" id="nextMonth">→</button><button class="btn btn-secondary" id="todayMonth">Today</button></div></div>
+<div id="adminError" class="admin-alert" hidden></div><div class="calendar-layout light-calendar"><div class="calendar-card"><div class="calendar-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div id="bookingCalendarGrid" class="calendar-grid"></div></div>
+<aside class="day-panel light-panel"><div class="day-panel-head"><div><span class="eyebrow">SELECTED DAY</span><h3 id="selectedDayLabel">Select a date</h3></div><span id="selectedDayCount">0 bookings</span></div><div id="selectedDayBookings" class="day-bookings"><p class="empty-state">Loading…</p></div><div class="day-vehicles"><div class="mini-head"><h4>Vehicle availability</h4><span id="selectedVehicleSummary">—</span></div><div id="selectedDayVehicles" class="vehicle-status-list"></div></div></aside></div></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="admin.js"></script>
+</body></html>
