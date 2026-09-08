@@ -32,3 +32,6 @@ V12 fixes the admin dashboard so it waits for the Vercel `/api/config` Supabase 
 
 ## V20
 Luxury white About section added. Home hero remains unchanged.
+
+## V21
+About section redesigned as a dark luxury section with the supplied chauffeur image. Home remains unchanged.
