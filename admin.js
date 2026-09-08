@@ -49,6 +49,7 @@ async function boot(){
   if(pageName==="calendar")await initCalendar();
   if(pageName==="vehicles")await initVehicles();
   if(pageName==="pricing")await initPricing();
+  if(pageName==="community")await initCommunity();
   if(pageName==="settings")await initSettings();
 }
 
@@ -235,6 +236,26 @@ async function loadPricing(){
   tbody.innerHTML=(data||[]).map(p=>`<tr><td>${esc(p.service)}</td><td>${esc(p.vehicle||"—")}</td><td>${esc(p.trip_type||"—")}</td><td>$${Number(p.base_price||0).toFixed(2)}</td><td>$${Number(p.per_km||0).toFixed(2)}</td><td>$${Number(p.per_day||0).toFixed(2)}</td><td><button class="btn btn-small danger" data-delete-price="${p.id}">Delete</button></td></tr>`).join("")||'<tr><td colspan="7">No pricing rules yet.</td></tr>';
   tbody.querySelectorAll("[data-delete-price]").forEach(x=>x.addEventListener("click",async()=>{if(!confirm("Delete this pricing rule?"))return;const {error}=await sb.from("pricing_rules").delete().eq("id",x.dataset.deletePrice);if(error)alert(error.message);else loadPricing();}));
 }
+
+/* V27 Community moderation */
+async function initCommunity(){ await loadCommunityPhotos(); await loadCommunityComments(); }
+async function loadCommunityPhotos(){
+  const box=document.getElementById("communityPhotos"); if(!box)return;
+  const {data,error}=await sb.from("community_photos").select("*").order("created_at",{ascending:false});
+  if(error){box.innerHTML=`<p class="empty-state">${esc(error.message)}</p>`;return;}
+  const rows=data||[]; document.getElementById("photoPending").textContent=rows.filter(x=>x.status==="pending").length; document.getElementById("photoApproved").textContent=rows.filter(x=>x.status==="approved").length;
+  box.innerHTML=rows.map(x=>{const url=sb.storage.from("community-gallery").getPublicUrl(x.storage_path).data.publicUrl;return `<article class="community-admin-item"><img src="${esc(url)}" alt="${esc(x.caption||"Traveller photo")}"><div class="community-admin-copy"><div class="community-admin-top"><strong>${esc(x.name)}</strong><span class="status-pill status-${esc(x.status)}">${esc(x.status)}</span></div><p>${esc(x.caption||"No caption")}</p><small>${new Date(x.created_at).toLocaleString()}</small><div class="community-actions"><button class="btn btn-small primary" data-community-photo="${x.id}" data-next="approved">Approve</button><button class="btn btn-small danger" data-community-photo="${x.id}" data-next="rejected">Reject</button>${x.status!=="pending"?`<button class="btn btn-small" data-community-photo="${x.id}" data-next="pending">Pending</button>`:""}</div></div></article>`}).join("")||'<p class="empty-state">No photo submissions yet.</p>';
+  box.querySelectorAll("[data-community-photo]").forEach(b=>b.addEventListener("click",()=>moderateCommunity("community_photos",b.dataset.communityPhoto,b.dataset.next,loadCommunityPhotos)));
+}
+async function loadCommunityComments(){
+  const box=document.getElementById("communityComments"); if(!box)return;
+  const {data,error}=await sb.from("community_comments").select("*").order("created_at",{ascending:false});
+  if(error){box.innerHTML=`<p class="empty-state">${esc(error.message)}</p>`;return;}
+  const rows=data||[]; document.getElementById("commentPending").textContent=rows.filter(x=>x.status==="pending").length; document.getElementById("commentApproved").textContent=rows.filter(x=>x.status==="approved").length;
+  box.innerHTML=rows.map(x=>`<article class="community-comment-item"><div class="community-admin-top"><strong>${esc(x.name)}</strong><span class="status-pill status-${esc(x.status)}">${esc(x.status)}</span></div><p>${esc(x.comment)}</p><small>${new Date(x.created_at).toLocaleString()}</small><div class="community-actions"><button class="btn btn-small primary" data-community-comment="${x.id}" data-next="approved">Approve</button><button class="btn btn-small danger" data-community-comment="${x.id}" data-next="rejected">Reject</button>${x.status!=="pending"?`<button class="btn btn-small" data-community-comment="${x.id}" data-next="pending">Pending</button>`:""}</div></article>`).join("")||'<p class="empty-state">No comments yet.</p>';
+  box.querySelectorAll("[data-community-comment]").forEach(b=>b.addEventListener("click",()=>moderateCommunity("community_comments",b.dataset.communityComment,b.dataset.next,loadCommunityComments)));
+}
+async function moderateCommunity(table,id,status,reload){const {error}=await sb.from(table).update({status}).eq("id",id);if(error){alert(error.message);return;}await reload();}
 
 /* Settings */
 async function initSettings(){
