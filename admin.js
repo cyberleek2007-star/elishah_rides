@@ -7,7 +7,7 @@ const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clea
 const tableMap={tours:'tour_packages',destinations:'destinations',pricing:'pricing_rules',testimonials:'testimonials',gallery:'gallery_items',messages:'contact_messages'};
 const titles={overview:['OPERATIONS','Good evening, Admin.'],bookings:['JOURNEY MANAGEMENT','Bookings'],fleet:['VEHICLE OPERATIONS','Fleet'],availability:['SCHEDULING','Availability'],customers:['RELATIONSHIPS','Customers'],tours:['CONTENT STUDIO','Tour Packages'],destinations:['SRI LANKA','Destinations'],pricing:['COMMERCIAL CONTROL','Pricing'],testimonials:['SOCIAL PROOF','Testimonials'],gallery:['VISUAL STORY','Gallery'],messages:['CONTACT DESK','Messages']};
 async function init(){
- try{await window.supabaseConfigReady; const cfg=window.supabaseConfig||{}; if(!cfg.url||!cfg.anonKey) throw new Error('Supabase configuration is missing.'); sb=window.supabase.createClient(cfg.url,cfg.anonKey); const {data:{session}}=await sb.auth.getSession(); if(session) showApp(session.user); else showLogin(); sb.auth.onAuthStateChange((event,session)=>{if(session)showApp(session.user);else showLogin()});}
+ try{await window.supabaseConfigReady; const cfg=window.supabaseConfig||{}; const url=cfg.url||window.SUPABASE_URL; const anonKey=cfg.anonKey||window.SUPABASE_ANON_KEY; if(!url||!anonKey) throw new Error('Supabase configuration is missing.'); sb=window.supabase.createClient(url,anonKey); const {data:{session}}=await sb.auth.getSession(); if(session) showApp(session.user); else showLogin(); sb.auth.onAuthStateChange((event,session)=>{if(session)showApp(session.user);else showLogin()});}
  catch(e){console.error(e); showLogin(); $('#loginResult').textContent='Admin configuration could not be loaded.'}
  bind();
 }
