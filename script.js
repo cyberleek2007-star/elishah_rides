@@ -13,7 +13,24 @@ const TOURS = [
 const FLEET = [["Bike","1–2 guests","1 bag"],["Scooter","1–2 guests","1 bag"],["Flex","1–4 guests","3 bags"],["Car","1–4 guests","3 bags"],["Mini Van","1–7 guests","5 bags"],["Van","1–9 guests","7 bags"],["Bus","10–50 guests","10+ bags"]];
 const tourGrid=document.getElementById("tourGrid"), fleetGrid=document.getElementById("fleetGrid");
 if(tourGrid) {
- tourGrid.innerHTML=TOURS.map((t,i)=>`<article class="tour-card"><div class="tour-number">0${i+1}</div><div><p class="eyebrow">${t[1]}</p><h3>${t[0]}</h3><p>${t[3]}</p><small>${t[4]}</small></div><div class="tour-bottom"><strong>From ${t[2]}</strong><button class="text-btn" onclick="chooseTour('${t[0].replaceAll("'","\\'")}')">Book this tour →</button></div></article>`).join("");
+ const TOUR_IMAGES=[
+  'https://images.unsplash.com/photo-1588598198321-9735a2a6e4b0?auto=format&fit=crop&w=1200&q=82',
+  'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=82',
+  'https://images.unsplash.com/photo-1586613832201-1a1c9d1e2d3f?auto=format&fit=crop&w=1200&q=82',
+  'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=1200&q=82',
+  'https://images.unsplash.com/photo-1549366021-9f761d450615?auto=format&fit=crop&w=1200&q=82',
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=82',
+  'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1200&q=82',
+  'https://images.unsplash.com/photo-1504150558240-0b4fd8946624?auto=format&fit=crop&w=1200&q=82',
+  'https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=82',
+  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=82'
+ ];
+ tourGrid.innerHTML=TOURS.map((t,i)=>`<article class="er-tour-card ${i===0?'er-tour-featured':''}" style="--bg:url('${TOUR_IMAGES[i]}')">
+   <div class="er-tour-image"></div><div class="er-tour-shade"></div><div class="er-tour-content">
+   <div class="er-tour-top"><span>0${i+1}</span><span>${t[1]}</span></div>
+   <div><h3>${t[0]}</h3><p>${t[3]}</p><small>${t[4]}</small></div>
+   <div class="er-tour-bottom"><strong>From ${t[2]}</strong><button class="er-tour-btn" onclick="chooseTour('${t[0].replaceAll("'","\\'")}')">Explore <b>↗</b></button></div>
+   </div></article>`).join("");
  const FLEET_IMAGES={Bike:'assets/vehicles/bike.png',Scooter:'assets/vehicles/scooter.png',Flex:'assets/vehicles/flex.png',Car:'assets/vehicles/car.png','Mini Van':'assets/vehicles/minivan.png',Van:'assets/vehicles/van.png',Bus:'assets/vehicles/bus.png'};
 fleetGrid.innerHTML=FLEET.map((f,i)=>`<article class="fleet-card er-fleet-card">
   <div class="er-fleet-card-top"><span class="er-fleet-number">0${i+1}</span><span class="fleet-icon">ELISHAH</span></div>
