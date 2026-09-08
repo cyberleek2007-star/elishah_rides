@@ -17,11 +17,30 @@ if(tourGrid) {
  fleetGrid.innerHTML=FLEET.map((f,i)=>`<article class="fleet-card"><span class="fleet-icon">◆</span><h3>${f[0]}</h3><p>${f[1]} • ${f[2]} • Air Conditioning</p><button class="text-btn" onclick="chooseVehicle('${f[0]}')">Choose vehicle →</button></article>`).join("");
 }
 function chooseTour(name){document.querySelector('[name="service"]').value=name.includes("Tour")?"Private Day Tour":"Multi-Day Tour";document.querySelector('[name="notes"]').value=`Tour interest: ${name}`;document.getElementById("booking").scrollIntoView({behavior:"smooth"});}
-function chooseVehicle(name){document.querySelector('[name="vehicle"]').value=name;document.getElementById("booking").scrollIntoView({behavior:"smooth"});}
+function chooseVehicle(name, unitId="", displayName=""){
+ const vehicleEl=document.querySelector('[name="vehicle"]');
+ const unitEl=document.querySelector('[name="vehicle_unit_id"]');
+ const label=document.getElementById("selectedVehicleLabel");
+ const nameEl=document.querySelector('[name="vehicle_unit_name"]');
+ if(vehicleEl) vehicleEl.value=name;
+ if(unitEl) unitEl.value=unitId||"";
+ if(nameEl) nameEl.value=displayName||"";
+ if(label) label.textContent=displayName ? `Selected vehicle: ${displayName}` : "No specific vehicle selected";
+ document.getElementById("booking")?.scrollIntoView({behavior:"smooth"});
+}
 
-async function isVehicleAvailable(vehicleName,date){
+async function isVehicleAvailable(vehicleName,date,unitId=""){
  await supabaseClientReady;
  if(!sb) return false;
+ if(unitId){
+   const {data:unit,error:ue}=await sb.from("vehicle_units").select("id,category,capacity,active").eq("id",unitId).maybeSingle();
+   if(ue||!unit||!unit.active||unit.category!==vehicleName) return false;
+   const {data:blocks,error:be}=await sb.from("vehicle_unit_blocks").select("vehicle_unit_id").eq("vehicle_unit_id",unitId).eq("block_date",date);
+   if(be||blocks?.length) return false;
+   const {data:booked,error:ke}=await sb.from("bookings").select("id").eq("travel_date",date).eq("vehicle_unit_id",unitId).in("status",["Pending","Confirmed"]);
+   if(ke) return false;
+   return !(booked||[]).length;
+ }
  const {data:units,error:ue}=await sb.from("vehicle_units").select("id").eq("category",vehicleName).eq("active",true);
  if(ue||!units?.length) return false;
  const ids=units.map(x=>x.id);
@@ -56,20 +75,47 @@ if(form) form.addEventListener("submit",async e=>{
  const result=document.getElementById("bookingResult");
  const data=Object.fromEntries(new FormData(form).entries());
  const ref=makeRef();
- const booking={ref,status:"Pending",name:data.name,phone:data.phone,email:data.email||null,service:data.service,pickup:data.pickup,destination:data.destination,travel_date:data.date,pickup_time:data.time,passengers:Number(data.passengers||2),vehicle:data.vehicle,notes:data.notes||null};
+ const booking={ref,status:"Pending",name:data.name,phone:data.phone,email:data.email||null,service:data.service,pickup:data.pickup,destination:data.destination,travel_date:data.date,pickup_time:data.time,passengers:Number(data.passengers||2),vehicle:data.vehicle,vehicle_unit_id:data.vehicle_unit_id||null,notes:data.notes||null,payment_method:data.payment_method||null,payment_status:"Pending"};
  if(!sb){result.innerHTML="<b>Supabase is not configured yet.</b> Your form is ready, but connect the project in supabase-config.js first.";return;}
  result.textContent="Checking vehicle availability…";
- const available=await isVehicleAvailable(data.vehicle,data.date);
+ const available=await isVehicleAvailable(data.vehicle,data.date,data.vehicle_unit_id||"");
  if(!available){result.innerHTML="<b>Selected vehicle is not available on that date.</b> Please choose another vehicle or date.";return;}
  result.textContent="Submitting booking request…";
  const {error}=await sb.from("bookings").insert(booking);
  if(error){console.error(error);result.innerHTML="<b>Could not submit.</b> Please try again or contact us on WhatsApp.";return;}
- const msg=`Hello Elishah Rides, I submitted a booking request.\n\nReference: ${ref}\nName: ${data.name}\nPhone: ${data.phone}\nService: ${data.service}\nPickup: ${data.pickup}\nDestination: ${data.destination}\nDate: ${data.date}\nTime: ${data.time}\nPassengers: ${data.passengers}\nVehicle: ${data.vehicle}\nNotes: ${data.notes||"-"}`;
- result.innerHTML=`<b>Booking request received: ${ref}</b> — <a target="_blank" href="https://wa.me/94773523762?text=${encodeURIComponent(msg)}">Send details on WhatsApp →</a>`;
+ const msg=`Hello Elishah Rides, I submitted a booking request.\n\nReference: ${ref}\nName: ${data.name}\nPhone: ${data.phone}\nService: ${data.service}\nPickup: ${data.pickup}\nDestination: ${data.destination}\nDate: ${data.date}\nTime: ${data.time}\nPassengers: ${data.passengers}\nVehicle: ${data.vehicle}${data.vehicle_unit_id?`\nSpecific vehicle: ${data.vehicle_unit_name||"Selected"}`:""}\nPayment method: ${data.payment_method||"-"}\nNotes: ${data.notes||"-"}`;
+ const paymentNote=data.payment_method==="Bank Transfer" ? " Bank transfer details are shown above; send the receipt to WhatsApp after confirmation." : " PayPal payment will be arranged after the booking is confirmed.";
+ result.innerHTML=`<b>Booking request received: ${ref}</b> — ${paymentNote} <a target="_blank" href="https://wa.me/94773523762?text=${encodeURIComponent(msg)}">Send details on WhatsApp →</a>`;
  form.reset(); form.querySelector('[name="passengers"]').value=2;
 });
 
 
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const method=document.getElementById("paymentMethod");
+  const bank=document.getElementById("bankTransferInfo");
+  const paypal=document.getElementById("paypalInfo");
+  const update=()=>{ const v=method?.value||""; if(bank) bank.hidden=v!=="Bank Transfer"; if(paypal) paypal.hidden=v!=="PayPal"; };
+  method?.addEventListener("change",update); update();
+});
+
+/* V15 selected actual vehicle from availability page */
+document.addEventListener("DOMContentLoaded",()=>{
+  const category=sessionStorage.getItem("selectedVehicle");
+  const unitId=sessionStorage.getItem("selectedVehicleUnitId");
+  const unitName=sessionStorage.getItem("selectedVehicleName");
+  if(category){
+    const vehicleEl=document.querySelector('[name="vehicle"]');
+    const unitEl=document.querySelector('[name="vehicle_unit_id"]');
+    const label=document.getElementById("selectedVehicleLabel");
+    const nameEl=document.querySelector('[name="vehicle_unit_name"]');
+    if(vehicleEl) vehicleEl.value=category;
+    if(unitEl) unitEl.value=unitId||"";
+    if(nameEl) nameEl.value=unitName||"";
+    if(label) label.textContent=unitName?`Selected vehicle: ${unitName}`:"No specific vehicle selected";
+    sessionStorage.removeItem("selectedVehicle");sessionStorage.removeItem("selectedVehicleUnitId");sessionStorage.removeItem("selectedVehicleName");
+  }
+});
 
 /* V7 Pricing Estimate */
 let v7PricingCache = [];

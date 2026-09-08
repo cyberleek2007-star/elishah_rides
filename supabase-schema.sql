@@ -159,3 +159,8 @@ alter table public.bookings
 
 alter table public.bookings
   add column if not exists currency text not null default 'USD';
+
+-- Payment preference and tracking
+alter table public.bookings add column if not exists payment_method text;
+alter table public.bookings add column if not exists payment_status text not null default 'Unpaid';
+alter table public.bookings add column if not exists payment_reference text;

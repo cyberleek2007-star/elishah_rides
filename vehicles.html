@@ -16,8 +16,24 @@
   </nav>
   <div class="admin-sidebar-bottom"><a href="index.html">View website</a><button id="logout" type="button">Log out</button></div>
 </aside>
-<header class="admin-mobile-top"><a class="brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a><button id="mobileMenu" type="button">☰</button></header><main class="admin-main"><div class="admin-content"><div class="page-heading"><div><p class="eyebrow">FLEET</p><h1>Vehicles</h1><p>Manage vehicle availability and blocked dates.</p></div></div>
-<div id="adminError" class="admin-alert" hidden></div><section class="panel"><div class="panel-head"><div><h2>Block a vehicle</h2><p>Select a vehicle and date when it cannot be booked.</p></div></div><div class="availability-toolbar"><select id="vehicleSelect"></select><input id="blockDate" type="date"><input id="blockReason" placeholder="Reason (optional)"><button id="blockVehicle" class="btn primary">Block Date</button></div><p id="availabilityMsg" class="result"></p></section>
-<section class="panel"><div class="panel-head"><div><h2>Blocked dates</h2><p>Remove a block when the vehicle becomes available again.</p></div></div><div id="vehicleAvailability" class="vehicle-availability"><p class="empty-state">Loading…</p></div></section></div></main>
+<header class="admin-mobile-top"><a class="brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a><button id="mobileMenu" type="button">☰</button></header><main class="admin-main"><div class="admin-content">
+<div class="page-heading"><div><p class="eyebrow">FLEET</p><h1>Vehicles</h1><p>Add your actual vehicles under each category and block individual vehicles on dates when they cannot be booked.</p></div></div>
+<div id="adminError" class="admin-alert" hidden></div>
+<section class="panel"><div class="panel-head"><div><h2>Add an actual vehicle</h2><p>Example: Toyota Corolla Axio 01, Premium Sedan.</p></div></div>
+<form id="vehicleUnitForm" class="pricing-form" style="grid-template-columns:1.1fr 1.4fr 1fr .7fr .7fr 1.5fr auto;">
+<select id="unitCategory" required><option value="">Category</option><option>Premium Sedan</option><option>Luxury Sedan</option><option>SUV</option><option>Premium SUV</option><option>Van</option><option>Luxury Van</option></select>
+<input id="unitName" required placeholder="Vehicle name / model">
+<input id="unitRegistration" placeholder="Registration no. (optional)">
+<input id="unitCapacity" type="number" min="1" value="3" placeholder="Seats">
+<input id="unitLuggage" type="number" min="0" value="2" placeholder="Luggage">
+<input id="unitNotes" placeholder="Notes (optional)">
+<button class="btn primary" type="submit">Add Vehicle</button>
+</form><p id="vehicleUnitMsg" class="result"></p></section>
+<section class="panel"><div class="panel-head"><div><h2>Your actual fleet</h2><p>These vehicles appear inside the customer Vehicle Availability page.</p></div></div>
+<div id="vehicleUnitsList" class="booking-list"><p class="empty-state">Loading…</p></div></section>
+<section class="panel"><div class="panel-head"><div><h2>Block an individual vehicle</h2><p>Use this when a specific vehicle is unavailable on a date.</p></div></div>
+<div class="availability-toolbar"><select id="unitSelect"></select><input id="unitBlockDate" type="date"><input id="unitBlockReason" placeholder="Reason (optional)"><button id="blockUnit" class="btn primary">Block Date</button></div><p id="unitBlockMsg" class="result"></p></section>
+<section class="panel"><div class="panel-head"><div><h2>Blocked dates</h2><p>Remove a block when the vehicle becomes available again.</p></div></div><div id="vehicleUnitBlocks" class="vehicle-availability"><p class="empty-state">Loading…</p></div></section>
+</div></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="admin.js"></script>
 </body></html>

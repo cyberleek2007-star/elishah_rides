@@ -82,7 +82,10 @@
     <div class="field"><label>Date *</label><input name="date" type="date" required></div>
     <div class="field"><label>Pickup Time *</label><input name="time" type="time" required></div>
     <div class="field"><label>Passengers</label><input name="passengers" type="number" min="1" value="2"></div>
-    <div class="field"><label>Vehicle</label><select name="vehicle"><option>Premium Sedan</option><option>Luxury Sedan</option><option>SUV</option><option>Premium SUV</option><option>Van</option><option>Luxury Van</option></select></div>
+    <div class="field"><label>Vehicle Category</label><select name="vehicle"><option>Premium Sedan</option><option>Luxury Sedan</option><option>SUV</option><option>Premium SUV</option><option>Van</option><option>Luxury Van</option></select><small id="selectedVehicleLabel" class="selected-vehicle-label">No specific vehicle selected</small><input type="hidden" name="vehicle_unit_id" value=""><input type="hidden" name="vehicle_unit_name" value=""></div>
+    <div class="field full"><label>Payment Method *</label><select name="payment_method" id="paymentMethod" required><option value="">Select payment method</option><option value="Bank Transfer">Bank Transfer</option><option value="PayPal">PayPal</option></select></div>
+    <div class="payment-info full" id="bankTransferInfo" hidden><div><p class="eyebrow">BANK TRANSFER</p><h3>People's Bank</h3><p><strong>Account Name:</strong> Nuwan Chamara Edirisinghe</p><p><strong>Account Number:</strong> 008-2-002-2-0050775</p><p><strong>Branch:</strong> Anuradhapura</p><small>After your booking is confirmed, please send the transfer receipt to our WhatsApp number.</small></div></div>
+    <div class="payment-info full" id="paypalInfo" hidden><div><p class="eyebrow">PAYPAL</p><h3>PayPal payment</h3><p>Choose PayPal and submit your booking. After we confirm the booking and final amount, we will provide the PayPal payment link.</p><small>No PayPal password or card details are collected on this website.</small></div></div>
     <div class="field full"><label>Additional Requests</label><textarea name="notes" rows="4" placeholder="Flight number, luggage, hotel name, special requests..."></textarea></div>
     <div class="full"><button class="btn primary" type="submit">Submit Booking Request</button><span id="bookingResult" class="result"></span></div>
   </form>
