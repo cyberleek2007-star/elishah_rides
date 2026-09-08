@@ -28,3 +28,7 @@ V11 wires the existing Supabase frontend to Vercel Environment Variables through
 
 ## V12
 V12 fixes the admin dashboard so it waits for the Vercel `/api/config` Supabase configuration before initializing Supabase Auth.
+
+
+## V20
+Luxury white About section added. Home hero remains unchanged.
