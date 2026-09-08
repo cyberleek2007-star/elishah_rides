@@ -99,3 +99,35 @@ img{content-visibility:auto}
 .availability-page .line-vehicle img{width:82%;height:82%;object-fit:contain;mix-blend-mode:normal}
 .availability-page .category-toggle{width:100%;text-align:left}
 @media(max-width:700px){.availability-page .line-vehicle{height:145px;width:145px}}
+
+/* V19 — animated cinematic home hero */
+.v19-hero{min-height:calc(100vh - 78px);padding:0 7%;display:flex;align-items:center;overflow:hidden;background:#0b1712;isolation:isolate}
+.v19-hero .hero-overlay{background:linear-gradient(90deg,rgba(5,13,10,.96) 0%,rgba(5,13,10,.78) 42%,rgba(5,13,10,.28) 72%,rgba(5,13,10,.56) 100%);z-index:1}
+.v19-hero-content{z-index:3;max-width:790px;padding-top:20px}
+.hero-kicker{display:flex;align-items:center;gap:10px;color:#d0b27a;font-size:11px;font-weight:700;letter-spacing:2.7px;animation:heroFade .8s ease both}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:#d0b27a;box-shadow:0 0 0 0 rgba(208,178,122,.6);animation:pulseGold 2s infinite}
+.v19-hero h1{margin:22px 0 20px;letter-spacing:-2px}
+.v19-hero h1 .line-reveal{display:block;overflow:hidden;animation:heroLine 1s cubic-bezier(.2,.75,.25,1) both}
+.v19-hero h1 .delay-one{animation-delay:.15s}
+.v19-hero h1 strong{font-weight:700;color:#fff}
+.v19-hero .hero-copy{animation:heroFade 1s .35s ease both}
+.v19-hero .actions{animation:heroFade 1s .48s ease both}
+.hero-btn{transition:transform .25s ease,box-shadow .25s ease,background .25s ease}
+.hero-btn span{display:inline-block;margin-left:10px;transition:transform .25s ease}
+.hero-btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.22)}
+.hero-btn:hover span{transform:translateX(4px)}
+.v19-hero .hero-contact{animation:heroFade 1s .62s ease both}
+.hero-bottom{position:absolute;z-index:4;left:7%;right:7%;bottom:28px;display:flex;align-items:center;gap:16px;color:rgba(255,255,255,.52);font-size:9px;letter-spacing:2.5px}
+.scroll-line{height:1px;width:95px;background:rgba(255,255,255,.2);overflow:hidden}.scroll-line i{display:block;width:32px;height:1px;background:#c9a96a;animation:scrollMove 2.2s infinite}
+.hero-scene{position:absolute;inset:0;z-index:0;overflow:hidden;background:radial-gradient(circle at 72% 36%,rgba(197,165,96,.2),transparent 18%),radial-gradient(circle at 85% 80%,rgba(37,91,70,.45),transparent 34%),linear-gradient(135deg,#08130f 0%,#10241c 48%,#172c23 100%)}
+.scene-glow{position:absolute;border-radius:50%;filter:blur(2px);mix-blend-mode:screen}.glow-one{width:38vw;height:38vw;right:-8vw;top:8vh;background:radial-gradient(circle,rgba(211,178,106,.2),transparent 65%);animation:glowFloat 7s ease-in-out infinite}.glow-two{width:28vw;height:28vw;right:17vw;bottom:-12vw;background:radial-gradient(circle,rgba(74,137,105,.18),transparent 67%);animation:glowFloat 9s 1s ease-in-out infinite reverse}
+.scene-orbit{position:absolute;border:1px solid rgba(210,177,105,.14);border-radius:50%;right:4vw;top:12vh;transform:rotate(-18deg)}.orbit-one{width:46vw;height:22vw;animation:orbitDrift 12s ease-in-out infinite}.orbit-two{width:34vw;height:15vw;right:10vw;top:25vh;border-color:rgba(255,255,255,.07);animation:orbitDrift 9s 1s ease-in-out infinite reverse}
+.scene-horizon{position:absolute;left:0;right:0;bottom:18%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,169,106,.18),rgba(255,255,255,.15),transparent);box-shadow:0 0 35px rgba(201,169,106,.12)}
+.road{position:absolute;right:-8%;bottom:-20%;width:70%;height:58%;transform:perspective(500px) rotateX(63deg) rotateZ(-8deg);background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.025) 18%,rgba(255,255,255,.07) 50%,rgba(255,255,255,.02) 82%,transparent);border-top:1px solid rgba(255,255,255,.08);filter:blur(.1px)}
+.road-line{position:absolute;left:50%;top:0;width:2px;height:100%;background:repeating-linear-gradient(to bottom,rgba(201,169,106,.7) 0 26px,transparent 26px 58px);animation:roadMove 2.4s linear infinite}
+.route-line{position:absolute;right:7%;top:33%;width:38vw;height:28vh;opacity:.75}.route-line span,.route-line:before,.route-line:after{content:"";position:absolute;border:1px solid rgba(210,177,105,.35);border-left:0;border-bottom:0;border-radius:0 100px 0 0;transform:rotate(-12deg)}.route-line span{inset:10% 0 0 0}.route-line:before{inset:25% 12% 0 8%;opacity:.55}.route-line:after{inset:40% 25% 0 18%;opacity:.35}.route-line i,.route-line b{position:absolute;width:8px;height:8px;border:2px solid #d0b27a;background:#10231d;border-radius:50%;box-shadow:0 0 0 6px rgba(208,178,122,.08)}.route-line i{right:2%;top:8%;animation:mapPulse 2.8s infinite}.route-line b{left:16%;bottom:2%;animation:mapPulse 2.8s 1.2s infinite}
+.floating-word{position:absolute;color:rgba(255,255,255,.08);font-size:10px;letter-spacing:4px;font-weight:700}.word-one{right:11%;bottom:31%;animation:wordFloat 6s ease-in-out infinite}.word-two{right:28%;top:17%;animation:wordFloat 8s 1s ease-in-out infinite reverse}
+@keyframes heroFade{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}@keyframes heroLine{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:none}}@keyframes pulseGold{70%{box-shadow:0 0 0 9px rgba(208,178,122,0)}100%{box-shadow:0 0 0 0 rgba(208,178,122,0)}}@keyframes scrollMove{0%{transform:translateX(-110px)}55%,100%{transform:translateX(130px)}}@keyframes glowFloat{50%{transform:translate3d(-20px,15px,0) scale(1.08)}}@keyframes orbitDrift{50%{transform:rotate(-10deg) translate(12px,-8px) scale(1.03)}}@keyframes roadMove{to{background-position:0 58px}}@keyframes mapPulse{50%{box-shadow:0 0 0 11px rgba(208,178,122,0)}}@keyframes wordFloat{50%{transform:translateY(-10px);opacity:.14}}
+@media(max-width:850px){.v19-hero{min-height:calc(100vh - 70px);padding:0 6%}.route-line{right:-8%;top:28%;width:58vw}.floating-word{display:none}.road{right:-35%;width:100%;bottom:-14%}.hero-bottom{left:6%;right:6%}}
+@media(max-width:520px){.v19-hero{min-height:calc(100svh - 70px);padding:0 6%}.v19-hero h1{font-size:48px;letter-spacing:-1px}.v19-hero .hero-copy{font-size:15px;max-width:470px}.v19-hero .actions{flex-wrap:wrap}.hero-btn{width:100%;text-align:center}.route-line{right:-22%;top:27%;width:80vw;opacity:.45}.road{right:-65%;width:150%;bottom:-8%}.hero-bottom{bottom:18px;font-size:7px;gap:10px}.scroll-line{width:55px}.contact-sep{display:none}.v19-hero .hero-contact{gap:5px}}
+@media(prefers-reduced-motion:reduce){.v19-hero *, .v19-hero *:before, .v19-hero *:after{animation:none!important;transition:none!important}}
