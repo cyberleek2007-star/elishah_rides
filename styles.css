@@ -402,3 +402,82 @@ img{content-visibility:auto}
   .v10-trust-item{min-height:82px;border-right:0!important;border-bottom:1px solid rgba(255,255,255,.08)!important;padding:17px 4px}
   .v10-trust-item:last-child{border-bottom:0!important}
 }
+/* ELISHAH RIDES - Luxury Trust Strip Fix */
+.v10-trust-grid {
+  margin: 0;
+  padding: 22px 7%;
+  gap: 0;
+  background: #101714;
+  color: #ffffff;
+  border-top: 1px solid rgba(201,169,106,.16);
+  border-bottom: 1px solid rgba(201,169,106,.16);
+}
+
+.v10-trust-item {
+  min-height: 70px;
+  padding: 12px 24px;
+  border: 0;
+  border-right: 1px solid rgba(255,255,255,.10);
+  border-radius: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: background .3s ease, transform .3s ease;
+}
+
+.v10-trust-item:hover {
+  background: rgba(201,169,106,.06);
+  transform: translateY(-2px);
+}
+
+.v10-trust-item strong {
+  color: #ffffff;
+  font-size: 14px;
+  letter-spacing: .01em;
+}
+
+.v10-trust-item span {
+  color: rgba(255,255,255,.55);
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.v10-trust-item:last-child {
+  border-right: 0;
+}
+
+@media (max-width: 800px) {
+  .v10-trust-grid {
+    padding: 14px 5%;
+  }
+
+  .v10-trust-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .v10-trust-item:nth-child(2) {
+    border-right: 0;
+  }
+
+  .v10-trust-item:nth-child(3),
+  .v10-trust-item:nth-child(4) {
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .v10-trust-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .v10-trust-item {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .v10-trust-item:last-child {
+    border-bottom: 0;
+  }
+}
