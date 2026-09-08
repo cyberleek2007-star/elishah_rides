@@ -80,47 +80,56 @@ const form=document.getElementById("bookingForm");
 let sb=null;
 
 async function initSupabaseClient(){
-  try {
-    const ready = await (window.supabaseConfigReady || Promise.resolve(false));
-    if(ready && window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY){
-      sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
-    }
-  } catch(error){
-    console.error("Supabase client initialization failed:", error);
-  }
+  try{
+    const ready=await (window.supabaseConfigReady||Promise.resolve(false));
+    if(ready&&window.supabase&&window.SUPABASE_URL&&window.SUPABASE_ANON_KEY){sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);}
+  }catch(error){console.error("Supabase client initialization failed:",error);}
   return sb;
 }
-const supabaseClientReady = initSupabaseClient();
+const supabaseClientReady=initSupabaseClient();
 function makeRef(){return "ER-"+new Date().getFullYear()+"-"+Math.random().toString(36).slice(2,7).toUpperCase();}
-if(form) form.addEventListener("submit",async e=>{
- e.preventDefault();
- await supabaseClientReady;
- const result=document.getElementById("bookingResult");
- const data=Object.fromEntries(new FormData(form).entries());
- const ref=makeRef();
- const booking={ref,status:"Pending",name:data.name,phone:data.phone,email:data.email||null,service:data.service,pickup:data.pickup,destination:data.destination,travel_date:data.date,pickup_time:data.time,passengers:Number(data.passengers||2),vehicle:data.vehicle,vehicle_unit_id:data.vehicle_unit_id||null,notes:data.notes||null,payment_method:data.payment_method||null,payment_status:"Pending"};
- if(!sb){result.innerHTML="<b>Supabase is not configured yet.</b> Your form is ready, but connect the project in supabase-config.js first.";return;}
- result.textContent="Checking vehicle availability…";
- const available=await isVehicleAvailable(data.vehicle,data.date,data.vehicle_unit_id||"");
- if(!available){result.innerHTML="<b>Selected vehicle is not available on that date.</b> Please choose another vehicle or date.";return;}
- result.textContent="Submitting booking request…";
- const {error}=await sb.from("bookings").insert(booking);
- if(error){console.error(error);result.innerHTML="<b>Could not submit.</b> Please try again or contact us on WhatsApp.";return;}
- const msg=`Hello Elishah Rides, I submitted a booking request.\n\nReference: ${ref}\nName: ${data.name}\nPhone: ${data.phone}\nService: ${data.service}\nPickup: ${data.pickup}\nDestination: ${data.destination}\nDate: ${data.date}\nTime: ${data.time}\nPassengers: ${data.passengers}\nVehicle: ${data.vehicle}${data.vehicle_unit_id?`\nSpecific vehicle: ${data.vehicle_unit_name||"Selected"}`:""}\nPayment method: ${data.payment_method||"-"}\nNotes: ${data.notes||"-"}`;
- const paymentNote=data.payment_method==="Bank Transfer" ? " Bank transfer details are shown above; send the receipt to WhatsApp after confirmation." : " PayPal payment will be arranged after the booking is confirmed.";
- result.innerHTML=`<b>Booking request received: ${ref}</b> — ${paymentNote} <a target="_blank" href="https://wa.me/94773523762?text=${encodeURIComponent(msg)}">Send details on WhatsApp →</a>`;
- form.reset(); form.querySelector('[name="passengers"]').value=2;
-});
 
-
-
-document.addEventListener("DOMContentLoaded",()=>{
-  const method=document.getElementById("paymentMethod");
-  const bank=document.getElementById("bankTransferInfo");
-  const paypal=document.getElementById("paypalInfo");
-  const update=()=>{ const v=method?.value||""; if(bank) bank.hidden=v!=="Bank Transfer"; if(paypal) paypal.hidden=v!=="PayPal"; };
-  method?.addEventListener("change",update); update();
-});
+if(form){
+  const panels=[...form.querySelectorAll(".er-booking-panel")];
+  const steps=[...document.querySelectorAll(".er-step")];
+  let currentStep=1;
+  let submittedData=null;
+  const value=(name)=>form.elements[name]?.value||"";
+  const setText=(id,text)=>{const el=document.getElementById(id);if(el)el.textContent=text||"—";};
+  const formatDate=(v)=>{if(!v)return"—";const d=new Date(v+"T00:00:00");return d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"});};
+  const formatTime=(v)=>{if(!v)return"—";const [h,m]=v.split(":");const d=new Date();d.setHours(Number(h),Number(m));return d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});};
+  function updateStepper(){panels.forEach(p=>p.classList.toggle("active",Number(p.dataset.panel)===currentStep));steps.forEach(s=>{const n=Number(s.dataset.step);s.classList.toggle("active",n===currentStep);s.classList.toggle("done",n<currentStep);});const title=document.getElementById("bookingFlowTitle");if(title)title.textContent=currentStep===1?"Plan the perfect journey.":currentStep===2?"Review your journey.":"Journey received.";}
+  function fillReview(){setText("reviewName",value("name"));setText("reviewPhone",value("phone"));setText("reviewService",value("service"));setText("reviewRoute",`${value("pickup")} → ${value("destination")}`);setText("reviewDate",formatDate(value("date")));setText("reviewTime",formatTime(value("time")));setText("reviewVehicle",value("vehicle_unit_name")||value("vehicle"));setText("reviewPassengers",`${value("passengers")||2} passenger${Number(value("passengers")||2)===1?"":"s"}`);}
+  function selectedPayment(){return form.querySelector('input[name="payment_method"]:checked')?.value||"Bank Transfer";}
+  function togglePayment(){const v=selectedPayment();document.querySelectorAll(".er-payment-choice").forEach(c=>c.classList.toggle("active",c.querySelector("input")?.checked));const bank=document.getElementById("bankTransferInfo"),paypal=document.getElementById("paypalInfo");if(bank)bank.hidden=v!=="Bank Transfer";if(paypal)paypal.hidden=v!=="PayPal";}
+  form.querySelector(".er-next-btn")?.addEventListener("click",()=>{if(!form.reportValidity())return;fillReview();currentStep=2;updateStepper();});
+  form.querySelector(".er-back-btn")?.addEventListener("click",()=>{currentStep=1;updateStepper();});
+  form.querySelectorAll('input[name="payment_method"]').forEach(r=>r.addEventListener("change",togglePayment));
+  togglePayment();
+  form.addEventListener("submit",async e=>{
+    e.preventDefault();
+    if(currentStep!==2)return;
+    await supabaseClientReady;
+    const result=document.getElementById("bookingResult");
+    const data=Object.fromEntries(new FormData(form).entries());
+    const ref=makeRef();
+    const booking={ref,status:"Pending",name:data.name,phone:data.phone,email:data.email||null,service:data.service,pickup:data.pickup,destination:data.destination,travel_date:data.date,pickup_time:data.time,passengers:Number(data.passengers||2),vehicle:data.vehicle,vehicle_unit_id:data.vehicle_unit_id||null,notes:data.notes||null,payment_method:data.payment_method||"Bank Transfer",payment_status:"Pending"};
+    if(!sb){result.innerHTML="<b>Booking service is not connected yet.</b> Please contact us on WhatsApp.";return;}
+    result.textContent="Checking availability…";
+    const available=await isVehicleAvailable(data.vehicle,data.date,data.vehicle_unit_id||"");
+    if(!available){result.innerHTML="<b>Selected vehicle is not available on that date.</b> Please go back and choose another vehicle or date.";return;}
+    result.textContent="Securing your booking request…";
+    const {error}=await sb.from("bookings").insert(booking);
+    if(error){console.error(error);result.innerHTML="<b>Could not submit the booking.</b> Please try again or contact us on WhatsApp.";return;}
+    submittedData={...data,ref};
+    setText("confirmName",data.name);setText("confirmRef",ref);setText("confirmService",data.service);setText("confirmRoute",`${data.pickup} → ${data.destination}`);setText("confirmSchedule",`${formatDate(data.date)} • ${formatTime(data.time)}`);setText("confirmPayment",`${data.payment_method||"Bank Transfer"} • Pending`);
+    const msg=`Hello Elishah Rides, I submitted a booking request.\n\nReference: ${ref}\nName: ${data.name}\nPhone: ${data.phone}\nService: ${data.service}\nPickup: ${data.pickup}\nDestination: ${data.destination}\nDate: ${data.date}\nTime: ${data.time}\nPassengers: ${data.passengers||2}\nVehicle: ${data.vehicle}${data.vehicle_unit_id?`\nSpecific vehicle: ${data.vehicle_unit_name||"Selected"}`:""}\nPayment method: ${data.payment_method||"Bank Transfer"}\nNotes: ${data.notes||"-"}`;
+    const wa=document.getElementById("confirmWhatsapp");if(wa)wa.href=`https://wa.me/94773523762?text=${encodeURIComponent(msg)}`;
+    result.textContent="";currentStep=3;updateStepper();
+  });
+  form.querySelector(".er-new-booking")?.addEventListener("click",()=>{form.reset();form.elements.passengers.value=2;document.querySelectorAll('input[name="payment_method"]')[0]?.click();currentStep=1;updateStepper();togglePayment();});
+  updateStepper();
+}
 
 /* V15 selected actual vehicle from availability page */
 document.addEventListener("DOMContentLoaded",()=>{

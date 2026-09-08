@@ -164,7 +164,7 @@
 <div id="communityUploadModal" class="community-modal" aria-hidden="true"><div class="community-modal-card"><button class="community-close" type="button" onclick="closeCommunityModal('communityUploadModal')">×</button><p class="eyebrow">SHARE A MOMENT</p><h3>Upload your travel photo</h3><p>Your submission will be reviewed before it becomes visible to everyone.</p><form id="communityUploadForm" class="community-form"><input name="name" placeholder="Your name" maxlength="80" required><input name="caption" placeholder="Tell us about this moment" maxlength="180"><input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required><button class="btn primary" type="submit">Submit photo</button><small id="communityUploadMsg"></small></form></div></div>
 <div id="communityCommentModal" class="community-modal" aria-hidden="true"><div class="community-modal-card"><button class="community-close" type="button" onclick="closeCommunityModal('communityCommentModal')">×</button><p class="eyebrow">COMMUNITY NOTE</p><h3>Leave a comment</h3><form id="communityCommentForm" class="community-form"><input name="name" placeholder="Your name" maxlength="80" required><textarea name="comment" placeholder="Share your experience…" maxlength="500" rows="5" required></textarea><button class="btn primary" type="submit">Post comment</button><small id="communityCommentMsg"></small></form></div></div>
 
-<section id="booking" class="section booking-section er-booking-v30">
+<section id="booking" class="section booking-section er-booking-v30 er-booking-v31">
   <div class="er-booking-glow er-booking-glow-one"></div>
   <div class="er-booking-glow er-booking-glow-two"></div>
   <div class="er-booking-route" aria-hidden="true"><span></span><i></i><b></b></div>
@@ -175,33 +175,73 @@
       <p class="er-booking-lead">Tell us where you are going and we will arrange a refined, comfortable journey around you.</p>
       <div class="er-booking-promise">
         <div><span>01</span><strong>Choose your journey</strong><small>Service, route &amp; vehicle</small></div>
-        <div><span>02</span><strong>Share your details</strong><small>Quick booking — no account</small></div>
+        <div><span>02</span><strong>Review &amp; payment</strong><small>Simple, secure &amp; transparent</small></div>
         <div><span>03</span><strong>We confirm personally</strong><small>Clear communication on WhatsApp</small></div>
       </div>
       <div class="er-booking-note"><span>✦</span><div><strong>Ride with Honor. Travel With Class.</strong><small>Private chauffeur service across Sri Lanka.</small></div></div>
     </div>
 
-    <div class="er-booking-card">
+    <div class="er-booking-card er-booking-flow-card">
       <div class="er-booking-card-head">
-        <div><p class="eyebrow">BOOK YOUR RIDE</p><h3>Plan the perfect journey.</h3></div>
+        <div><p class="eyebrow">BOOK YOUR RIDE</p><h3 id="bookingFlowTitle">Plan the perfect journey.</h3></div>
         <span class="er-booking-live"><i></i> Available to arrange</span>
       </div>
-      <form id="bookingForm" class="booking-form er-booking-form-v30">
-        <div class="field"><label>Full Name *</label><input name="name" placeholder="Your name" required></div>
-        <div class="field"><label>Phone / WhatsApp *</label><input name="phone" placeholder="+94 77 352 3762" required></div>
-        <div class="field"><label>Email</label><input name="email" type="email" placeholder="you@example.com"></div>
-        <div class="field"><label>Service *</label><select name="service" required><option value="">Select service</option><option>Airport Transfer</option><option>Chauffeur Hire</option><option>Private Day Tour</option><option>Multi-Day Tour</option><option>Custom Tour</option><option>Corporate Travel</option><option>Hotel Transfer</option><option>Wedding &amp; Event Transportation</option></select></div>
-        <div class="field"><label>Pickup Location *</label><input name="pickup" placeholder="Where should we pick you up?" required></div>
-        <div class="field"><label>Destination *</label><input name="destination" placeholder="Where are you going?" required></div>
-        <div class="field"><label>Date *</label><input name="date" type="date" required></div>
-        <div class="field"><label>Pickup Time *</label><input name="time" type="time" required></div>
-        <div class="field"><label>Passengers</label><input name="passengers" type="number" min="1" value="2"></div>
-        <div class="field"><label>Vehicle Category</label><select name="vehicle"><option>Bike</option><option>Scooter</option><option>Flex</option><option>Car</option><option>Mini Van</option><option>Van</option><option>Bus</option></select><small id="selectedVehicleLabel" class="selected-vehicle-label">No specific vehicle selected</small><input type="hidden" name="vehicle_unit_id" value=""><input type="hidden" name="vehicle_unit_name" value=""></div>
-        <div class="field full"><label>Payment Method *</label><select name="payment_method" id="paymentMethod" required><option value="">Select payment method</option><option value="Bank Transfer">Bank Transfer</option><option value="PayPal">PayPal</option></select></div>
-        <div class="payment-info full" id="bankTransferInfo" hidden><div><p class="eyebrow">BANK TRANSFER</p><h3>People's Bank</h3><p><strong>Account Name:</strong> Nuwan Chamara Edirisinghe</p><p><strong>Account Number:</strong> 008-2-002-2-0050775</p><p><strong>Branch:</strong> Anuradhapura</p><small>After your booking is confirmed, please send the transfer receipt to our WhatsApp number.</small></div></div>
-        <div class="payment-info full" id="paypalInfo" hidden><div><p class="eyebrow">PAYPAL</p><h3>PayPal payment</h3><p>Choose PayPal and submit your booking. After we confirm the booking and final amount, we will provide the PayPal payment link.</p><small>No PayPal password or card details are collected on this website.</small></div></div>
-        <div class="field full"><label>Additional Requests</label><textarea name="notes" rows="4" placeholder="Flight number, luggage, hotel name, special requests..."></textarea></div>
-        <div class="er-booking-submit full"><button class="btn primary" type="submit">Request My Journey <span>→</span></button><span id="bookingResult" class="result"></span></div>
+
+      <div class="er-stepper" aria-label="Booking progress">
+        <div class="er-step active" data-step="1"><span>1</span><b>Details</b></div><i></i>
+        <div class="er-step" data-step="2"><span>2</span><b>Review &amp; Pay</b></div><i></i>
+        <div class="er-step" data-step="3"><span>3</span><b>Confirmed</b></div>
+      </div>
+
+      <form id="bookingForm" class="booking-form er-booking-form-v30 er-booking-form-v31">
+        <div class="er-booking-panel active" data-panel="1">
+          <div class="er-form-section-title"><span>01</span><div><strong>Journey details</strong><small>Tell us how you would like to travel.</small></div></div>
+          <div class="field"><label>Full Name *</label><input name="name" placeholder="Your name" required></div>
+          <div class="field"><label>Phone / WhatsApp *</label><input name="phone" placeholder="+94 77 352 3762" required></div>
+          <div class="field"><label>Email</label><input name="email" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label>Service *</label><select name="service" required><option value="">Select service</option><option>Airport Transfer</option><option>Chauffeur Hire</option><option>Private Day Tour</option><option>Multi-Day Tour</option><option>Custom Tour</option><option>Corporate Travel</option><option>Hotel Transfer</option><option>Wedding &amp; Event Transportation</option></select></div>
+          <div class="field"><label>Pickup Location *</label><input name="pickup" placeholder="Where should we pick you up?" required></div>
+          <div class="field"><label>Destination *</label><input name="destination" placeholder="Where are you going?" required></div>
+          <div class="field"><label>Date *</label><input name="date" type="date" required></div>
+          <div class="field"><label>Pickup Time *</label><input name="time" type="time" required></div>
+          <div class="field"><label>Passengers</label><input name="passengers" type="number" min="1" value="2"></div>
+          <div class="field"><label>Vehicle Category</label><select name="vehicle"><option>Bike</option><option>Scooter</option><option>Flex</option><option>Car</option><option>Mini Van</option><option>Van</option><option>Bus</option></select><small id="selectedVehicleLabel" class="selected-vehicle-label">No specific vehicle selected</small><input type="hidden" name="vehicle_unit_id" value=""><input type="hidden" name="vehicle_unit_name" value=""></div>
+          <div class="field full"><label>Additional Requests</label><textarea name="notes" rows="3" placeholder="Flight number, luggage, hotel name, special requests..."></textarea></div>
+          <div class="er-flow-actions full"><button class="btn primary er-next-btn" type="button">Continue to Review <span>→</span></button><span class="er-flow-hint">No account required • Takes less than a minute</span></div>
+        </div>
+
+        <div class="er-booking-panel" data-panel="2">
+          <div class="er-form-section-title"><span>02</span><div><strong>Review &amp; payment</strong><small>Check your journey, then choose how you want to pay.</small></div></div>
+          <div class="er-review-grid">
+            <div class="er-review-main">
+              <div class="er-review-block"><span>Traveller</span><strong id="reviewName">—</strong><small id="reviewPhone">—</small></div>
+              <div class="er-review-block"><span>Journey</span><strong id="reviewService">—</strong><small id="reviewRoute">—</small></div>
+              <div class="er-review-block"><span>Schedule</span><strong id="reviewDate">—</strong><small id="reviewTime">—</small></div>
+              <div class="er-review-block"><span>Vehicle</span><strong id="reviewVehicle">—</strong><small id="reviewPassengers">—</small></div>
+            </div>
+            <div class="er-price-card"><span>JOURNEY TOTAL</span><strong>To be confirmed</strong><small>We confirm the final fare personally after reviewing your route, vehicle and travel requirements.</small></div>
+          </div>
+          <div class="er-payment-choice-title">Choose payment method</div>
+          <div class="er-payment-choices">
+            <label class="er-payment-choice active"><input type="radio" name="payment_method" value="Bank Transfer" checked><span class="er-payment-icon">▣</span><span><strong>Bank Transfer</strong><small>Direct bank transfer</small></span><b>✓</b></label>
+            <label class="er-payment-choice"><input type="radio" name="payment_method" value="PayPal"><span class="er-payment-icon">P</span><span><strong>PayPal</strong><small>Secure online payment</small></span><b>✓</b></label>
+          </div>
+          <div class="payment-info er-payment-info-v31" id="bankTransferInfo"><div><p class="eyebrow">BANK TRANSFER</p><h3>People's Bank</h3><p><strong>Account Name:</strong> Nuwan Chamara Edirisinghe</p><p><strong>Account Number:</strong> 008-2-002-2-0050775</p><p><strong>Branch:</strong> Anuradhapura</p><small>After your booking is confirmed, send the transfer receipt to our WhatsApp number.</small></div></div>
+          <div class="payment-info er-payment-info-v31" id="paypalInfo" hidden><div><p class="eyebrow">PAYPAL</p><h3>Pay securely with PayPal</h3><p>Your booking will be recorded first. Once we confirm the route and final fare, we will provide the PayPal payment link.</p><small>No PayPal password or card details are collected on this website.</small></div></div>
+          <div class="er-flow-actions full"><button class="btn ghost er-back-btn" type="button">← Back</button><button class="btn primary er-submit-btn" type="submit">Confirm Booking <span>→</span></button><span id="bookingResult" class="result"></span></div>
+        </div>
+
+        <div class="er-booking-panel" data-panel="3">
+          <div class="er-confirmation">
+            <div class="er-confirm-icon">✓</div>
+            <p class="eyebrow">JOURNEY REQUEST RECEIVED</p>
+            <h3>You're one step closer to Sri Lanka.</h3>
+            <p>Thank you, <strong id="confirmName">Traveller</strong>. Your booking request has been received and our team will confirm the journey personally.</p>
+            <div class="er-confirm-ref"><span>BOOKING REFERENCE</span><strong id="confirmRef">ER-2026-XXXXX</strong></div>
+            <div class="er-confirm-summary"><div><span>Service</span><strong id="confirmService">—</strong></div><div><span>Route</span><strong id="confirmRoute">—</strong></div><div><span>Date &amp; Time</span><strong id="confirmSchedule">—</strong></div><div><span>Payment</span><strong id="confirmPayment">Pending</strong></div></div>
+            <div class="er-confirm-actions"><a id="confirmWhatsapp" class="btn primary" target="_blank" rel="noopener">Continue on WhatsApp →</a><button type="button" class="btn ghost er-new-booking">Make Another Booking</button></div>
+          </div>
+        </div>
       </form>
       <div class="er-booking-secure"><span>🔒</span> Your details are used only to arrange your booking. No customer account required.</div>
     </div>
