@@ -192,216 +192,30 @@ function v8PaymentNotice() {
 document.addEventListener("DOMContentLoaded",()=>setTimeout(v8PaymentNotice,900));
 
 
-/* V27 FIX — public traveller uploads + comments */
+/* V27 FIX — safe community rendering */
+function esc(value){return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 
-function esc(value){
-  return String(value ?? '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-}
-
-function openCommunityUpload(){
-  document.getElementById('communityUploadModal')?.classList.add('open');
-}
-
-function openCommunityComment(){
-  document.getElementById('communityCommentModal')?.classList.add('open');
-}
-
-function closeCommunityModal(id){
-  document.getElementById(id)?.classList.remove('open');
-}
-
+/* V27 — public traveller uploads + comments */
+function openCommunityUpload(){document.getElementById('communityUploadModal')?.classList.add('open')}
+function openCommunityComment(){document.getElementById('communityCommentModal')?.classList.add('open')}
+function closeCommunityModal(id){document.getElementById(id)?.classList.remove('open')}
 async function loadCommunity(){
-  if(!sb) return;
-
-  const g = document.getElementById('communityGallery');
-  const c = document.getElementById('communityComments');
-
-  if(!g && !c) return;
-
-  const {data:photos,error:pe} = await sb
-    .from('community_photos')
-    .select('id,name,caption,storage_path,created_at')
-    .eq('status','approved')
-    .order('created_at',{ascending:false})
-    .limit(12);
-
-  if(pe){
-    if(g){
-      g.innerHTML = '<p class="community-loading">Traveller gallery is being prepared.</p>';
-    }
-  }else if(g){
-    g.innerHTML = (photos || []).map(x => {
-      const {data} = sb.storage
-        .from('community-gallery')
-        .getPublicUrl(x.storage_path);
-
-      return `
-        <article class="er-community-card">
-          <img
-            src="${data.publicUrl}"
-            alt="Travel photo shared by ${esc(x.name)}"
-            loading="lazy"
-          >
-          <div class="er-community-card-content">
-            <small>Traveller story</small>
-            <strong>${esc(x.name)}</strong>
-            <p>${esc(x.caption || 'A moment from Sri Lanka.')}</p>
-          </div>
-        </article>
-      `;
-    }).join('') || '<p class="community-loading">Be the first traveller to share a moment.</p>';
-  }
-
-  const {data:comments,error:ce} = await sb
-    .from('community_comments')
-    .select('id,name,comment,created_at')
-    .eq('status','approved')
-    .order('created_at',{ascending:false})
-    .limit(9);
-
-  if(ce){
-    if(c){
-      c.innerHTML = '<p class="community-loading">Comments are being prepared.</p>';
-    }
-  }else if(c){
-    c.innerHTML = (comments || []).map(x => `
-      <article class="er-community-comment">
-        <p>“${esc(x.comment)}”</p>
-        <strong>${esc(x.name)}</strong>
-      </article>
-    `).join('') || '<p class="community-loading">No traveller comments yet.</p>';
-  }
+ if(!sb)return;
+ const g=document.getElementById('communityGallery'), c=document.getElementById('communityComments'); if(!g&&!c)return;
+ const {data:photos,error:pe}=await sb.from('community_photos').select('id,name,caption,storage_path,created_at').eq('status','approved').order('created_at',{ascending:false}).limit(12);
+ if(pe){if(g)g.innerHTML='<p class="community-loading">Traveller gallery is being prepared.</p>';} else if(g){
+   g.innerHTML=(photos||[]).map(x=>{const {data}=sb.storage.from('community-gallery').getPublicUrl(x.storage_path);return `<article class="er-community-card"><img src="${data.publicUrl}" alt="Travel photo shared by ${esc(x.name)}" loading="lazy"><div class="er-community-card-content"><small>Traveller story</small><strong>${esc(x.name)}</strong><p>${esc(x.caption||'A moment from Sri Lanka.')}</p></div></article>`}).join('')||'<p class="community-loading">Be the first traveller to share a moment.</p>';
+ }
+ const {data:comments,error:ce}=await sb.from('community_comments').select('id,name,comment,created_at').eq('status','approved').order('created_at',{ascending:false}).limit(9);
+ if(ce){if(c)c.innerHTML='<p class="community-loading">Comments are being prepared.</p>';} else if(c){c.innerHTML=(comments||[]).map(x=>`<article class="er-community-comment"><p>“${esc(x.comment)}”</p><strong>${esc(x.name)}</strong></article>`).join('')||'<p class="community-loading">No traveller comments yet.</p>';}
 }
-
 async function submitCommunityPhoto(e){
-  e.preventDefault();
-
-  const f = e.target;
-  const msg = document.getElementById('communityUploadMsg');
-
-  if(!sb){
-    msg.textContent = 'Service is not connected yet.';
-    return;
-  }
-
-  const file = f.elements.photo?.files?.[0];
-
-  if(!file){
-    msg.textContent = 'Please choose a photo.';
-    return;
-  }
-
-  if(file.size > 8 * 1024 * 1024){
-    msg.textContent = 'Please choose an image under 8 MB.';
-    return;
-  }
-
-  msg.textContent = 'Uploading…';
-
-  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-  const path = `public/${crypto.randomUUID()}.${ext}`;
-
-  const up = await sb.storage
-    .from('community-gallery')
-    .upload(path,file,{
-      contentType:file.type,
-      upsert:false
-    });
-
-  if(up.error){
-    msg.textContent = up.error.message;
-    return;
-  }
-
-  const name = f.elements.name?.value.trim() || '';
-  const caption = f.elements.caption?.value.trim() || '';
-
-  const ins = await sb
-    .from('community_photos')
-    .insert({
-      name:name,
-      caption:caption || null,
-      storage_path:path,
-      status:'pending'
-    });
-
-  if(ins.error){
-    await sb.storage.from('community-gallery').remove([path]);
-    msg.textContent = ins.error.message;
-    return;
-  }
-
-  msg.textContent = 'Submitted for review. Thank you!';
-  f.reset();
-
-  setTimeout(() => {
-    closeCommunityModal('communityUploadModal');
-  },1100);
+ e.preventDefault();const f=e.target,msg=document.getElementById('communityUploadMsg');if(!sb){msg.textContent='Service is not connected yet.';return;}const file=f.photo.files[0];if(!file)return;
+ if(file.size>8*1024*1024){msg.textContent='Please choose an image under 8 MB.';return;}
+ msg.textContent='Uploading…';const ext=(file.name.split('.').pop()||'jpg').toLowerCase(), path=`public/${crypto.randomUUID()}.${ext}`;
+ const up=await sb.storage.from('community-gallery').upload(path,file,{contentType:file.type,upsert:false});if(up.error){msg.textContent=up.error.message;return;}
+ const ins=await sb.from('community_photos').insert({name:f.elements.name.value.trim(),caption:f.elements.caption.value.trim()||null,storage_path:path,status:'pending'});if(ins.error){await sb.storage.from('community-gallery').remove([path]);msg.textContent=ins.error.message;return;}
+ msg.textContent='Submitted for review. Thank you!';f.reset();setTimeout(()=>closeCommunityModal('communityUploadModal'),1100);
 }
-
-async function submitCommunityComment(e){
-  e.preventDefault();
-
-  const f = e.target;
-  const msg = document.getElementById('communityCommentMsg');
-
-  if(!sb){
-    msg.textContent = 'Service is not connected yet.';
-    return;
-  }
-
-  msg.textContent = 'Posting…';
-
-  const name = f.elements.name?.value.trim() || '';
-  const comment = f.elements.comment?.value.trim() || '';
-
-  const {error} = await sb
-    .from('community_comments')
-    .insert({
-      name:name,
-      comment:comment,
-      status:'pending'
-    });
-
-  if(error){
-    msg.textContent = error.message;
-    return;
-  }
-
-  msg.textContent = 'Submitted for review. Thank you!';
-  f.reset();
-
-  setTimeout(() => {
-    closeCommunityModal('communityCommentModal');
-    loadCommunity();
-  },1100);
-}
-
-document.addEventListener('DOMContentLoaded',async() => {
-  await supabaseClientReady;
-
-  loadCommunity();
-
-  document
-    .getElementById('communityUploadForm')
-    ?.addEventListener('submit',submitCommunityPhoto);
-
-  document
-    .getElementById('communityCommentForm')
-    ?.addEventListener('submit',submitCommunityComment);
-
-  document
-    .querySelectorAll('.community-modal')
-    .forEach(m => {
-      m.addEventListener('click',e => {
-        if(e.target === m){
-          m.classList.remove('open');
-        }
-      });
-    });
-});
+async function submitCommunityComment(e){e.preventDefault();const f=e.target,msg=document.getElementById('communityCommentMsg');if(!sb){msg.textContent='Service is not connected yet.';return;}msg.textContent='Posting…';const {error}=await sb.from('community_comments').insert({name:f.elements.name.value.trim(),comment:f.elements.comment.value.trim(),status:'pending'});if(error){msg.textContent=error.message;return;}msg.textContent='Submitted for review. Thank you!';f.reset();setTimeout(()=>{closeCommunityModal('communityCommentModal');loadCommunity()},1100);}
+document.addEventListener('DOMContentLoaded',async()=>{await supabaseClientReady;loadCommunity();document.getElementById('communityUploadForm')?.addEventListener('submit',submitCommunityPhoto);document.getElementById('communityCommentForm')?.addEventListener('submit',submitCommunityComment);document.querySelectorAll('.community-modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));});
