@@ -53,3 +53,8 @@ Run the latest `V15-VEHICLE-CATEGORY-BOOKING.sql` in Supabase SQL Editor once. I
 
 ## V17 vehicle categories
 V17 replaces the old categories with Bike, Scooter, Flex, Car, Mini Van and Bus. Run `V17-VEHICLE-CATEGORIES.sql` once after deploying V17.
+
+## V18 — Vehicle Icons + Van category
+1. V18 uses premium gold line icons based on the approved sample for Bike, Scooter, Flex, Car, Mini Van, Van and Bus.
+2. Customer page uses separate transparent PNG icons inside circular premium cards.
+3. Run `V18-VEHICLE-ICONS.sql` in Supabase SQL Editor once to add the new Van unit and starter pricing.

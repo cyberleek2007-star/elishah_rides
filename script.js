@@ -10,7 +10,7 @@ const TOURS = [
  ["Adventure Sri Lanka","6 Days / 5 Nights","$1,750","A more active journey mixing mountains, wildlife, beaches and adventure.","Kandy • Ella • Yala • South Coast"],
  ["Custom Private Tour","Flexible","Request a Quote","Build your own Sri Lanka journey around your dates, interests and pace.","Fully Custom"]
 ];
-const FLEET = [["Bike","1–2 guests","1 bag"],["Scooter","1–2 guests","1 bag"],["Flex","1–4 guests","3 bags"],["Car","1–4 guests","3 bags"],["Mini Van","1–7 guests","5 bags"],["Bus","10–50 guests","10+ bags"]];
+const FLEET = [["Bike","1–2 guests","1 bag"],["Scooter","1–2 guests","1 bag"],["Flex","1–4 guests","3 bags"],["Car","1–4 guests","3 bags"],["Mini Van","1–7 guests","5 bags"],["Van","1–9 guests","7 bags"],["Bus","10–50 guests","10+ bags"]];
 const tourGrid=document.getElementById("tourGrid"), fleetGrid=document.getElementById("fleetGrid");
 if(tourGrid) {
  tourGrid.innerHTML=TOURS.map((t,i)=>`<article class="tour-card"><div class="tour-number">0${i+1}</div><div><p class="eyebrow">${t[1]}</p><h3>${t[0]}</h3><p>${t[3]}</p><small>${t[4]}</small></div><div class="tour-bottom"><strong>From ${t[2]}</strong><button class="text-btn" onclick="chooseTour('${t[0].replaceAll("'","\\'")}')">Book this tour →</button></div></article>`).join("");

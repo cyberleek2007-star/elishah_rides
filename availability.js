@@ -1,10 +1,11 @@
 const CATEGORIES=[
- {name:'Bike',capacity:'1–2 guests',luggage:'1 bag',image:'assets/vehicles/bike.svg',description:'Quick, flexible and ideal for solo or short-distance travel.'},
- {name:'Scooter',capacity:'1–2 guests',luggage:'1 bag',image:'assets/vehicles/scooter.svg',description:'Easy city travel for guests who want a simple and agile ride.'},
- {name:'Flex',capacity:'1–4 guests',luggage:'3 bags',image:'assets/vehicles/flex.svg',description:'Versatile space for couples, families and everyday Sri Lankan travel.'},
- {name:'Car',capacity:'1–4 guests',luggage:'3 bags',image:'assets/vehicles/car.svg',description:'Comfortable private travel for airport transfers, tours and road journeys.'},
- {name:'Mini Van',capacity:'1–7 guests',luggage:'5 bags',image:'assets/vehicles/minivan.svg',description:'More room and comfort for families and small groups.'},
- {name:'Bus',capacity:'10–50 guests',luggage:'10+ bags',image:'assets/vehicles/bus.svg',description:'Practical group transportation for tours, events and larger parties.'}
+ {name:'Bike',capacity:'1–2 guests',luggage:'1 bag',image:'assets/vehicles/bike.png',description:'Quick, flexible and ideal for solo or short-distance travel.'},
+ {name:'Scooter',capacity:'1–2 guests',luggage:'1 bag',image:'assets/vehicles/scooter.png',description:'Easy city travel for guests who want a simple and agile ride.'},
+ {name:'Flex',capacity:'1–4 guests',luggage:'3 bags',image:'assets/vehicles/flex.png',description:'Versatile hatchback travel for couples and everyday journeys.'},
+ {name:'Car',capacity:'1–4 guests',luggage:'3 bags',image:'assets/vehicles/car.png',description:'Comfortable sedan travel for airport transfers, tours and road journeys.'},
+ {name:'Mini Van',capacity:'1–7 guests',luggage:'5 bags',image:'assets/vehicles/minivan.png',description:'Spacious minivan comfort for families and small groups.'},
+ {name:'Van',capacity:'1–9 guests',luggage:'7 bags',image:'assets/vehicles/van.png',description:'Practical van space for families, groups and longer journeys.'},
+ {name:'Bus',capacity:'10–50 guests',luggage:'10+ bags',image:'assets/vehicles/bus.png',description:'Comfortable group transportation for tours, events and larger parties.'}
 ];
 const dateEl=document.getElementById('availabilityDate'),passengersEl=document.getElementById('availabilityPassengers'),grid=document.getElementById('availabilityGrid'),statusEl=document.getElementById('availabilityStatus');
 let sb=null;
