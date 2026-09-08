@@ -481,3 +481,36 @@ img{content-visibility:auto}
     border-bottom: 0;
   }
 }
+/* FINAL FIX — luxury dark trust strip */
+.v10-trust-grid{
+  margin-top:0!important;
+  padding:24px 7%!important;
+  background:linear-gradient(135deg,#0a120f 0%,#101d17 55%,#0b1511 100%)!important;
+  border-top:1px solid rgba(201,169,106,.18);
+  border-bottom:1px solid rgba(201,169,106,.12);
+  color:#fff!important;
+}
+
+.v10-trust-item{
+  background:rgba(255,255,255,.025)!important;
+  border:1px solid rgba(201,169,106,.18)!important;
+  border-radius:14px!important;
+  padding:18px!important;
+  transition:all .3s ease;
+}
+
+.v10-trust-item:hover{
+  transform:translateY(-3px);
+  background:rgba(201,169,106,.07)!important;
+  border-color:rgba(201,169,106,.4)!important;
+}
+
+.v10-trust-item strong{
+  color:#d6b574!important;
+  letter-spacing:.3px;
+}
+
+.v10-trust-item span{
+  color:#aeb9b2!important;
+  opacity:1!important;
+}
