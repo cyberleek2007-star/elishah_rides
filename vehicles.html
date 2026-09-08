@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Vehicles — Elishah Rides Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head><body class="admin-app" data-admin-page="vehicles">
+<aside class="admin-sidebar">
+  <a class="brand admin-brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a>
+  <div class="admin-user"><span>Signed in as</span><strong id="userEmail">Admin</strong></div>
+  <nav class="admin-menu">
+    <a href="dashboard.html" data-page="dashboard">⌂ <span>Dashboard</span></a>
+    <a href="bookings.html" data-page="bookings">▣ <span>Bookings</span></a>
+    <a href="calendar.html" data-page="calendar">□ <span>Calendar</span></a>
+    <a href="vehicles.html" data-page="vehicles">▱ <span>Vehicles</span></a>
+    <a href="pricing.html" data-page="pricing">$ <span>Pricing</span></a>
+    <a href="settings.html" data-page="settings">⚙ <span>Settings</span></a>
+  </nav>
+  <div class="admin-sidebar-bottom"><a href="index.html">View website</a><button id="logout" type="button">Log out</button></div>
+</aside>
+<header class="admin-mobile-top"><a class="brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a><button id="mobileMenu" type="button">☰</button></header><main class="admin-main"><div class="admin-content"><div class="page-heading"><div><p class="eyebrow">FLEET</p><h1>Vehicles</h1><p>Manage vehicle availability and blocked dates.</p></div></div>
+<div id="adminError" class="admin-alert" hidden></div><section class="panel"><div class="panel-head"><div><h2>Block a vehicle</h2><p>Select a vehicle and date when it cannot be booked.</p></div></div><div class="availability-toolbar"><select id="vehicleSelect"></select><input id="blockDate" type="date"><input id="blockReason" placeholder="Reason (optional)"><button id="blockVehicle" class="btn primary">Block Date</button></div><p id="availabilityMsg" class="result"></p></section>
+<section class="panel"><div class="panel-head"><div><h2>Blocked dates</h2><p>Remove a block when the vehicle becomes available again.</p></div></div><div id="vehicleAvailability" class="vehicle-availability"><p class="empty-state">Loading…</p></div></section></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="admin.js"></script>
+</body></html>

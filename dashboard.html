@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard — Elishah Rides Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head><body class="admin-app" data-admin-page="dashboard">
+<aside class="admin-sidebar">
+  <a class="brand admin-brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a>
+  <div class="admin-user"><span>Signed in as</span><strong id="userEmail">Admin</strong></div>
+  <nav class="admin-menu">
+    <a href="dashboard.html" data-page="dashboard">⌂ <span>Dashboard</span></a>
+    <a href="bookings.html" data-page="bookings">▣ <span>Bookings</span></a>
+    <a href="calendar.html" data-page="calendar">□ <span>Calendar</span></a>
+    <a href="vehicles.html" data-page="vehicles">▱ <span>Vehicles</span></a>
+    <a href="pricing.html" data-page="pricing">$ <span>Pricing</span></a>
+    <a href="settings.html" data-page="settings">⚙ <span>Settings</span></a>
+  </nav>
+  <div class="admin-sidebar-bottom"><a href="index.html">View website</a><button id="logout" type="button">Log out</button></div>
+</aside>
+<header class="admin-mobile-top"><a class="brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a><button id="mobileMenu" type="button">☰</button></header><main class="admin-main"><div class="admin-content"><div class="page-heading"><div><p class="eyebrow">OVERVIEW</p><h1>Dashboard</h1><p>Welcome to your Elishah Rides operations center.</p></div><a class="btn primary" href="bookings.html">View bookings</a></div>
+<div id="adminError" class="admin-alert" hidden></div>
+<div class="stats stats-six"><div><b id="total">0</b><span>Total bookings</span></div><div><b id="pending">0</b><span>Pending</span></div><div><b id="confirmed">0</b><span>Confirmed</span></div><div><b id="paid">0</b><span>Paid</span></div><div><b id="completed">0</b><span>Completed</span></div><div><b id="cancelled">0</b><span>Cancelled</span></div></div>
+<div class="dashboard-grid"><section class="panel"><div class="panel-head"><div><p class="eyebrow">RECENT</p><h2>Recent bookings</h2></div><a href="bookings.html">See all</a></div><div id="recentBookings" class="simple-list"><p class="empty-state">Loading…</p></div></section>
+<section class="panel"><div class="panel-head"><div><p class="eyebrow">QUICK ACTIONS</p><h2>Manage</h2></div></div><div class="quick-grid"><a href="bookings.html"><strong>Bookings</strong><span>Review and confirm requests</span></a><a href="calendar.html"><strong>Calendar</strong><span>See dates and vehicle availability</span></a><a href="vehicles.html"><strong>Vehicles</strong><span>Block unavailable dates</span></a><a href="pricing.html"><strong>Pricing</strong><span>Manage USD rates</span></a></div></section></div></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="admin.js"></script>
+</body></html>
