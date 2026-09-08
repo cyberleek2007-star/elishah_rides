@@ -1,9 +1,25 @@
 let sb=null, bookings=[];
 const loginPanel=document.getElementById("loginPanel"), dashboard=document.getElementById("dashboard");
-if(window.supabase && window.SUPABASE_URL && !window.SUPABASE_URL.startsWith("YOUR_")) sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
+async function initAdminSupabase(){
+  try{
+    const ready = await (window.supabaseConfigReady || Promise.resolve(false));
+    if(ready && window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY){
+      sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+    }
+  }catch(error){
+    console.error("Supabase admin initialization failed:", error);
+  }
+  return sb;
+}
+
 async function boot(){
- if(!sb){document.getElementById("loginMsg").textContent="Connect Supabase in supabase-config.js first.";return;}
+ await initAdminSupabase();
+ if(!sb){
+   document.getElementById("loginMsg").textContent="Supabase connection could not be loaded. Check Vercel Environment Variables.";
+   return;
+ }
  const {data:{session}}=await sb.auth.getSession();
  if(session) showDashboard(session); else loginPanel.hidden=false;
 }

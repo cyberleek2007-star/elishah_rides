@@ -24,3 +24,7 @@ Final premium UI/UX polish, accessibility/performance touches, SEO metadata, tru
 
 ## V11
 V11 wires the existing Supabase frontend to Vercel Environment Variables through a small Vercel serverless `/api/config` endpoint. The Supabase publishable/anon key is public client configuration; service-role/secret keys remain server-side and are not exposed.
+
+
+## V12
+V12 fixes the admin dashboard so it waits for the Vercel `/api/config` Supabase configuration before initializing Supabase Auth.
