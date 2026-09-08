@@ -14,7 +14,13 @@ const FLEET = [["Bike","1–2 guests","1 bag"],["Scooter","1–2 guests","1 bag"
 const tourGrid=document.getElementById("tourGrid"), fleetGrid=document.getElementById("fleetGrid");
 if(tourGrid) {
  tourGrid.innerHTML=TOURS.map((t,i)=>`<article class="tour-card"><div class="tour-number">0${i+1}</div><div><p class="eyebrow">${t[1]}</p><h3>${t[0]}</h3><p>${t[3]}</p><small>${t[4]}</small></div><div class="tour-bottom"><strong>From ${t[2]}</strong><button class="text-btn" onclick="chooseTour('${t[0].replaceAll("'","\\'")}')">Book this tour →</button></div></article>`).join("");
- fleetGrid.innerHTML=FLEET.map((f,i)=>`<article class="fleet-card"><span class="fleet-icon">◆</span><h3>${f[0]}</h3><p>${f[1]} • ${f[2]} • Air Conditioning</p><button class="text-btn" onclick="chooseVehicle('${f[0]}')">Choose vehicle →</button></article>`).join("");
+ const FLEET_IMAGES={Bike:'assets/vehicles/bike.png',Scooter:'assets/vehicles/scooter.png',Flex:'assets/vehicles/flex.png',Car:'assets/vehicles/car.png','Mini Van':'assets/vehicles/minivan.png',Van:'assets/vehicles/van.png',Bus:'assets/vehicles/bus.png'};
+fleetGrid.innerHTML=FLEET.map((f,i)=>`<article class="fleet-card er-fleet-card">
+  <div class="er-fleet-card-top"><span class="er-fleet-number">0${i+1}</span><span class="fleet-icon">ELISHAH</span></div>
+  <div class="er-fleet-image"><img src="${FLEET_IMAGES[f[0]]}" alt="${f[0]} vehicle" loading="lazy"></div>
+  <div class="er-fleet-card-body"><h3>${f[0]}</h3><p>${f[1]} <i>•</i> ${f[2]} <i>•</i> Air Conditioning</p></div>
+  <div class="er-fleet-card-footer"><button class="text-btn" onclick="chooseVehicle('${f[0]}')">Book this category <span>→</span></button><a href="availability.html">Availability</a></div>
+</article>`).join("");
 }
 function chooseTour(name){document.querySelector('[name="service"]').value=name.includes("Tour")?"Private Day Tour":"Multi-Day Tour";document.querySelector('[name="notes"]').value=`Tour interest: ${name}`;document.getElementById("booking").scrollIntoView({behavior:"smooth"});}
 function chooseVehicle(name, unitId="", displayName=""){
