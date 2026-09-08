@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Bookings — Elishah Rides Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head><body class="admin-app" data-admin-page="bookings">
+<aside class="admin-sidebar">
+  <a class="brand admin-brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a>
+  <div class="admin-user"><span>Signed in as</span><strong id="userEmail">Admin</strong></div>
+  <nav class="admin-menu">
+    <a href="dashboard.html" data-page="dashboard">⌂ <span>Dashboard</span></a>
+    <a href="bookings.html" data-page="bookings">▣ <span>Bookings</span></a>
+    <a href="calendar.html" data-page="calendar">□ <span>Calendar</span></a>
+    <a href="vehicles.html" data-page="vehicles">▱ <span>Vehicles</span></a>
+    <a href="pricing.html" data-page="pricing">$ <span>Pricing</span></a>
+    <a href="settings.html" data-page="settings">⚙ <span>Settings</span></a>
+  </nav>
+  <div class="admin-sidebar-bottom"><a href="index.html">View website</a><button id="logout" type="button">Log out</button></div>
+</aside>
+<header class="admin-mobile-top"><a class="brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a><button id="mobileMenu" type="button">☰</button></header><main class="admin-main"><div class="admin-content"><div class="page-heading"><div><p class="eyebrow">OPERATIONS</p><h1>Bookings</h1><p>All customer booking requests from Supabase.</p></div></div>
+<div id="adminError" class="admin-alert" hidden></div>
+<div class="toolbar admin-toolbar"><input id="search" placeholder="Search reference, name, phone, route…"><select id="filter"><option value="All">All statuses</option><option>Pending</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select></div>
+<div class="stats stats-four"><div><b id="total">0</b><span>Total</span></div><div><b id="pending">0</b><span>Pending</span></div><div><b id="confirmed">0</b><span>Confirmed</span></div><div><b id="completed">0</b><span>Completed</span></div></div>
+<div id="empty" class="empty">No booking requests yet.</div><div id="bookingList" class="booking-list"></div>
+<div class="modal" id="bookingDetailModal" aria-hidden="true"><div class="modal-backdrop" data-close-booking-modal></div><div class="modal-card"><button class="modal-close" data-close-booking-modal>×</button><span class="eyebrow">BOOKING DETAILS</span><h2 id="detailRef">Booking</h2><div id="bookingDetailBody"></div><div class="detail-actions"><button class="btn btn-secondary" id="detailWhatsApp">WhatsApp</button><button class="btn btn-secondary" id="detailPaid">Mark Paid</button><button class="btn primary" id="detailConfirm">Confirm Booking</button></div></div></div></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="admin.js"></script>
+</body></html>

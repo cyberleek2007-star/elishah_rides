@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Pricing — Elishah Rides Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head><body class="admin-app" data-admin-page="pricing">
+<aside class="admin-sidebar">
+  <a class="brand admin-brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a>
+  <div class="admin-user"><span>Signed in as</span><strong id="userEmail">Admin</strong></div>
+  <nav class="admin-menu">
+    <a href="dashboard.html" data-page="dashboard">⌂ <span>Dashboard</span></a>
+    <a href="bookings.html" data-page="bookings">▣ <span>Bookings</span></a>
+    <a href="calendar.html" data-page="calendar">□ <span>Calendar</span></a>
+    <a href="vehicles.html" data-page="vehicles">▱ <span>Vehicles</span></a>
+    <a href="pricing.html" data-page="pricing">$ <span>Pricing</span></a>
+    <a href="settings.html" data-page="settings">⚙ <span>Settings</span></a>
+  </nav>
+  <div class="admin-sidebar-bottom"><a href="index.html">View website</a><button id="logout" type="button">Log out</button></div>
+</aside>
+<header class="admin-mobile-top"><a class="brand" href="dashboard.html"><span>ELISHAH</span><small>RIDES</small></a><button id="mobileMenu" type="button">☰</button></header><main class="admin-main"><div class="admin-content"><div class="page-heading"><div><p class="eyebrow">REVENUE</p><h1>Pricing</h1><p>Manage the USD starting prices used by booking estimates.</p></div></div>
+<div id="adminError" class="admin-alert" hidden></div><section class="panel"><div class="panel-head"><div><h2>Add pricing rule</h2><p>Keep pricing simple and transparent.</p></div></div><form id="pricingForm" class="pricing-form"><select id="priceService" required><option>Airport Transfer</option><option>Chauffeur-Driven Vehicle Hire</option><option>Private Day Tours</option><option>Multi-Day Tours</option><option>Custom Sri Lanka Tours</option><option>Corporate Travel</option><option>Hotel Transfers</option></select><input id="priceVehicle" placeholder="Vehicle name (optional)"><input id="priceTripType" placeholder="Trip type (optional)"><input id="priceBase" type="number" min="0" step="0.01" placeholder="Base USD" required><input id="priceKm" type="number" min="0" step="0.01" placeholder="USD / km"><input id="priceDay" type="number" min="0" step="0.01" placeholder="USD / day"><button class="btn primary" type="submit">Add Pricing Rule</button></form></section>
+<section class="panel"><div class="panel-head"><div><h2>Current pricing</h2></div></div><div class="table-wrap"><table class="admin-table"><thead><tr><th>Service</th><th>Vehicle</th><th>Trip</th><th>Base</th><th>/ km</th><th>/ day</th><th></th></tr></thead><tbody id="pricingRows"><tr><td colspan="7">Loading…</td></tr></tbody></table></div></section></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="admin.js"></script>
+</body></html>
