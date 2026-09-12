@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-let sb=null, bookings=[], units=[], blocks=[], tables={};
+let sb=null, bookings=[], units=[], blocks=[], tables={}, travellerPhotos=[];
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),2600)};
@@ -14,9 +14,14 @@ async function init(){
   const anonKey=cfg.anonKey||window.SUPABASE_ANON_KEY;
   if(!url||!anonKey) throw new Error('Supabase configuration is missing.');
   sb=window.supabase.createClient(url,anonKey);
-  const {data:{session}}=await sb.auth.getSession();
-  if(session) await handleSession(session); else showLogin();
-  sb.auth.onAuthStateChange(async (event,nextSession)=>{ await handleSession(nextSession); });
+  // SECURITY: never restore an existing browser session on page load.
+  // Admin must enter email + password whenever the admin page is opened.
+  showLogin();
+  await sb.auth.signOut();
+  sb.auth.onAuthStateChange(async (event,nextSession)=>{
+    if(event==='SIGNED_IN' && nextSession) await handleSession(nextSession);
+    else if(!nextSession) showLogin();
+  });
  }
  catch(e){console.error(e); showLogin(); $('#loginResult').textContent='Admin configuration could not be loaded.'}
  bind();
@@ -44,8 +49,8 @@ function bind(){
  $('#sideNav').addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)go(b.dataset.page)});
  document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
  $('#bookingSearch').addEventListener('input',renderBookings);$('#bookingStatus').addEventListener('change',renderBookings);$('#refreshPendingBookings').addEventListener('click',async()=>{await loadBookings();renderAll();toast('Bookings refreshed')});$('#clearBookingFilters').addEventListener('click',()=>{$('#bookingSearch').value='';$('#bookingStatus').value='';renderBookings()});
- $('#exportBookings').addEventListener('click',exportCSV);$('#blockForm').addEventListener('submit',addBlock);
- $('#addVehicleBtn').addEventListener('click',()=>vehicleModal());$('#addTourBtn').addEventListener('click',()=>contentModal('tours'));$('#addDestinationBtn').addEventListener('click',()=>contentModal('destinations'));$('#addPricingBtn').addEventListener('click',()=>contentModal('pricing'));$('#addTestimonialBtn').addEventListener('click',()=>contentModal('testimonials'));$('#addGalleryBtn').addEventListener('click',()=>contentModal('gallery'));
+ $('#refreshTravellerPhotos')?.addEventListener('click',async()=>{await loadTravellerPhotos();renderTravellerPhotos();toast('Traveller photos refreshed')});$('#exportBookings').addEventListener('click',exportCSV);$('#blockForm').addEventListener('submit',addBlock);
+ $('#addVehicleBtn').addEventListener('click',()=>vehicleModal());$('#addTourBtn').addEventListener('click',()=>contentModal('tours'));$('#addDestinationBtn').addEventListener('click',()=>contentModal('destinations'));$('#addPricingBtn').addEventListener('click',()=>contentModal('pricing'));$('#addTestimonialBtn').addEventListener('click',()=>contentModal('testimonials'));$('#addGalleryBtn').addEventListener('click',()=>contentModal('gallery'));$('#refreshCommunity').addEventListener('click',async()=>{await loadCommunity();renderAll();toast('Community refreshed')});
  document.addEventListener('click',handleActions);
  setInterval(clock,1000);clock();
 }
@@ -54,14 +59,52 @@ function showApp(user){ $('#loginView').classList.add('hidden');$('#appView').cl
 async function login(e){e.preventDefault();const r=$('#loginResult');r.textContent='';if(!sb){r.textContent='Admin service is not connected.';return}const {error}=await sb.auth.signInWithPassword({email:$('#loginEmail').value.trim(),password:$('#loginPassword').value});if(error)r.textContent=error.message}
 function go(page){$$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$$('.page').forEach(x=>x.classList.toggle('active',x.id==='page-'+page));$('#pageKicker').textContent=titles[page][0];$('#pageTitle').textContent=titles[page][1];window.scrollTo({top:0,behavior:'smooth'})}
 function clock(){const d=new Date();try{$('#liveClock').textContent=new Intl.DateTimeFormat('en-LK',{timeZone:'Asia/Colombo',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(d)}catch{}} 
-async function loadAll(){if(!sb)return;toast('Refreshing command center…');await Promise.all([loadBookings(),loadUnits(),loadBlocks(),loadContent(),loadMessages()]);renderAll();toast('Dashboard refreshed')}
+async function loadAll(){if(!sb)return;toast('Refreshing command center…');await Promise.all([loadBookings(),loadUnits(),loadBlocks(),loadContent(),loadMessages(),loadTravellerPhotos(),loadCommunity()]);renderAll();toast('Dashboard refreshed')}
 async function safeSelect(table,columns='*',order='created_at',limit=300){const q=sb.from(table).select(columns);const r=order?q.order(order,{ascending:false}).limit(limit):await q.limit(limit);return r}
 async function loadBookings(){const r=await safeSelect('bookings');if(r.error){console.error(r.error);bookings=[];return}bookings=r.data||[]}
 async function loadUnits(){const r=await safeSelect('vehicle_units');if(r.error){console.warn('vehicle_units',r.error.message);units=[];return}units=r.data||[]}
 async function loadBlocks(){const r=await safeSelect('vehicle_unit_blocks');if(r.error){blocks=[];return}blocks=r.data||[]}
 async function loadContent(){for(const [key,table] of Object.entries(tableMap)){const r=await safeSelect(table);tables[key]=r.error?[]:(r.data||[])} }
 async function loadMessages(){const r=await safeSelect('contact_messages');tables.messages=r.error?[]:(r.data||[])}
-function renderAll(){renderStats();renderLatest();renderPendingBookings();renderBookings();renderFleet();renderBlocks();renderCustomers();renderContent('tours');renderContent('destinations');renderContent('pricing');renderContent('testimonials');renderGallery();renderMessages();fillBlockVehicles()}
+async function loadTravellerPhotos(){
+ const r=await sb.from('community_photos').select('id,name,caption,storage_path,created_at,status').order('created_at',{ascending:false}).limit(100);
+ if(r.error){console.warn('community_photos',r.error.message);travellerPhotos=[];return}
+ travellerPhotos=r.data||[];
+}
+function communityPhotoUrl(path){
+ if(!path)return '';
+ try{return sb.storage.from('community-gallery').getPublicUrl(path).data.publicUrl||''}catch{return ''}
+}
+function renderTravellerPhotos(){
+ const el=$('#travellerPhotosGrid'), count=$('#travellerPhotosCount');
+ if(!el)return;
+ const pending=travellerPhotos.filter(x=>String(x.status||'pending').toLowerCase()==='pending').length;
+ if(count)count.textContent=pending;
+ if(!travellerPhotos.length){
+   el.innerHTML='<div class="empty-state">No traveller photo submissions yet.</div>';
+   return;
+ }
+ el.innerHTML=travellerPhotos.map(x=>{
+   const status=String(x.status||'pending').toLowerCase();
+   const url=communityPhotoUrl(x.storage_path);
+   const badge=status==='approved'?'Approved':status==='rejected'?'Rejected':'Pending';
+   const actions=status==='approved'
+     ? `<button class="small-btn danger-btn" data-action="reject-traveller-photo" data-id="${esc(x.id)}">Reject</button><button class="small-btn danger-btn" data-action="delete-traveller-photo" data-id="${esc(x.id)}">Delete</button>`
+     : status==='rejected'
+     ? `<button class="small-btn confirm-btn" data-action="approve-traveller-photo" data-id="${esc(x.id)}">✓ Accept</button><button class="small-btn danger-btn" data-action="delete-traveller-photo" data-id="${esc(x.id)}">Delete</button>`
+     : `<button class="small-btn confirm-btn" data-action="approve-traveller-photo" data-id="${esc(x.id)}">✓ Accept</button><button class="small-btn danger-btn" data-action="reject-traveller-photo" data-id="${esc(x.id)}">Reject</button><button class="small-btn danger-btn" data-action="delete-traveller-photo" data-id="${esc(x.id)}">Delete</button>`;
+   return `<article class="gallery-item traveller-photo-card">
+     ${url?`<img src="${esc(url)}" alt="${esc(x.caption||'Traveller photo')}" loading="lazy">`:''}
+     <div class="gallery-overlay">
+       <strong>${esc(x.name||'Traveller')}</strong>
+       <span>${esc(x.caption||'Traveller submission')}</span>
+       <span class="status ${status}">${badge}</span>
+       <div class="row-actions">${actions}</div>
+     </div>
+   </article>`;
+ }).join('');
+}
+function renderAll(){renderStats();renderLatest();renderPendingBookings();renderBookings();renderFleet();renderBlocks();renderCustomers();renderContent('tours');renderContent('destinations');renderContent('pricing');renderContent('testimonials');renderGallery();renderTravellerPhotos();renderCommunity();renderMessages();fillBlockVehicles()}
 function renderStats(){const p=bookings.filter(b=>bookingStatus(b).toLowerCase()==='pending').length,c=bookings.filter(b=>bookingStatus(b).toLowerCase()==='confirmed').length,paid=bookings.filter(b=>b.status==='Paid'||b.payment_status==='Paid').length;$('#statPending').textContent=p;$('#statConfirmed').textContent=c;$('#statPaid').textContent=paid;$('#statVehicles').textContent=units.filter(v=>v.active!==false).length;$('#pendingBadge').textContent=p;$('#messageBadge').textContent=(tables.messages||[]).filter(m=>!m.read_at).length}
 function renderLatest(){const el=$('#latestBookings');if(!bookings.length){el.className='booking-list empty';el.innerHTML='No bookings yet.';return}el.className='booking-list';el.innerHTML=bookings.slice(0,6).map(b=>`<div class="booking-row"><div><strong>${esc(b.ref||'—')}</strong><small>${esc(b.service||'Journey')}</small></div><div><strong>${esc(b.name||'Traveller')}</strong><small>${esc(b.pickup||'')} → ${esc(b.destination||'')}</small></div><span class="status ${bookingStatus(b).toLowerCase()}">${esc(b.status||'Pending')}</span></div>`).join('')}
 function bookingStatus(b){return String(b?.status||'Pending').trim()||'Pending'}
@@ -75,6 +118,53 @@ function renderCustomers(){const map=new Map();bookings.forEach(b=>{const key=(b
 function renderContent(key){const el=$('#'+({tours:'tourGrid',destinations:'destinationGrid',pricing:'pricingGrid',testimonials:'testimonialGrid'}[key]));const arr=tables[key]||[];if(!arr.length){el.innerHTML='<div class="empty-state">No records yet. Use the button above to add the first one.</div>';return}el.innerHTML=arr.map(x=>{let title=x.title||x.name||x.package_name||x.destination_name||x.rule_name||'Untitled';let desc=x.short_description||x.description||x.tagline||x.review||'';let price=x.starting_price??x.price??x.amount;return `<article class="content-card"><span class="eyebrow">${esc(key.replace(/s$/,'').toUpperCase())}</span><h3>${esc(title)}</h3><p>${esc(desc).slice(0,180)}</p><div class="content-bottom"><span class="price">${price!=null?'$'+esc(price):''}</span><div><button class="small-btn" data-action="edit-content" data-type="${key}" data-id="${esc(x.id)}">Edit</button> <button class="small-btn" data-action="delete-content" data-type="${key}" data-id="${esc(x.id)}">Delete</button></div></div></article>`}).join('')}
 function renderGallery(){const el=$('#galleryGrid'),arr=tables.gallery||[];if(!arr.length){el.innerHTML='<div class="empty-state">No gallery images yet.</div>';return}el.innerHTML=arr.map(x=>`<div class="gallery-item">${x.image_url?`<img src="${esc(x.image_url)}" alt="${esc(x.title||'Elishah Rides')}">`:''}<div class="gallery-overlay">${esc(x.title||x.caption||'Travel experience')} <button class="small-btn" data-action="delete-content" data-type="gallery" data-id="${esc(x.id)}">Delete</button></div></div>`).join('')}
 function renderMessages(){const el=$('#messagesList'),arr=tables.messages||[];if(!arr.length){el.innerHTML='<div class="empty-state">No contact messages yet.</div>';return}el.innerHTML=arr.map(m=>`<article class="message-card"><header><div><h3>${esc(m.subject||'New enquiry')}</h3><small>${esc(m.name||'Traveller')} · ${esc(m.email||m.phone||'')}</small></div><small>${esc(m.created_at?new Date(m.created_at).toLocaleString():'')}</small></header><p>${esc(m.message||'')}</p></article>`).join('')}
+async function updateTravellerPhoto(id,status){
+ const row=travellerPhotos.find(x=>x.id===id); if(!row)return;
+ const {error}=await sb.from('community_photos').update({status}).eq('id',id);
+ if(error){toast(error.message);return}
+ await loadTravellerPhotos();renderAll();
+ toast(status==='approved'?'Traveller photo accepted':'Traveller photo rejected');
+}
+async function approveTravellerPhoto(id){await updateTravellerPhoto(id,'approved')}
+async function rejectTravellerPhoto(id){await updateTravellerPhoto(id,'rejected')}
+async function deleteTravellerPhoto(id){
+ const row=travellerPhotos.find(x=>x.id===id); if(!row)return;
+ if(!confirm(`Delete traveller photo from ${row.name||'Traveller'}? This cannot be undone.`))return;
+ const {error}=await sb.from('community_photos').delete().eq('id',id);
+ if(error){toast(error.message);return}
+ await loadTravellerPhotos();renderAll();toast('Traveller photo deleted');
+}
+
+async function loadCommunity(){
+ const [pr,cr]=await Promise.all([
+  sb.from('community_photos').select('id,name,caption,storage_path,created_at,status').order('created_at',{ascending:false}).limit(100),
+  sb.from('community_comments').select('id,name,comment,created_at,status').order('created_at',{ascending:false}).limit(100)
+ ]);
+ communityPhotos=pr.error?[]:(pr.data||[]);
+ communityComments=cr.error?[]:(cr.data||[]);
+ if(pr.error)console.warn('community_photos',pr.error.message);
+ if(cr.error)console.warn('community_comments',cr.error.message);
+}
+function renderCommunity(){
+ const pg=$('#communityPhotosGrid'), cg=$('#communityCommentsList');
+ const pp=communityPhotos.filter(x=>String(x.status||'pending').toLowerCase()==='pending').length;
+ const pc=communityComments.filter(x=>String(x.status||'pending').toLowerCase()==='pending').length;
+ if($('#communityPhotoCount'))$('#communityPhotoCount').textContent=pp;
+ if($('#communityCommentCount'))$('#communityCommentCount').textContent=pc;
+ if($('#communityBadge'))$('#communityBadge').textContent=pp+pc;
+ if(pg){
+  if(!communityPhotos.length) pg.innerHTML='<div class="empty-state">No traveller photo submissions yet.</div>';
+  else pg.innerHTML=communityPhotos.map(x=>{const st=String(x.status||'pending').toLowerCase(),url=communityPhotoUrl(x.storage_path);const actions=st==='approved'?`<button class="small-btn danger-btn" data-action="reject-community-photo" data-id="${esc(x.id)}">Reject</button><button class="small-btn danger-btn" data-action="delete-community-photo" data-id="${esc(x.id)}">Delete</button>`:st==='rejected'?`<button class="small-btn confirm-btn" data-action="approve-community-photo" data-id="${esc(x.id)}">✓ Accept</button><button class="small-btn danger-btn" data-action="delete-community-photo" data-id="${esc(x.id)}">Delete</button>`:`<button class="small-btn confirm-btn" data-action="approve-community-photo" data-id="${esc(x.id)}">✓ Accept</button><button class="small-btn danger-btn" data-action="reject-community-photo" data-id="${esc(x.id)}">Reject</button><button class="small-btn danger-btn" data-action="delete-community-photo" data-id="${esc(x.id)}">Delete</button>`;return `<article class="gallery-item traveller-photo-card">${url?`<img src="${esc(url)}" alt="${esc(x.caption||'Traveller photo')}" loading="lazy">`:''}<div class="gallery-overlay"><strong>${esc(x.name||'Traveller')}</strong><span>${esc(x.caption||'Traveller submission')}</span><span class="status ${st}">${st==='approved'?'Approved':st==='rejected'?'Rejected':'Pending'}</span><div class="row-actions">${actions}</div></div></article>`}).join('');
+ }
+ if(cg){
+  if(!communityComments.length) cg.innerHTML='<div class="empty-state">No traveller comments yet.</div>';
+  else cg.innerHTML=communityComments.map(x=>{const st=String(x.status||'pending').toLowerCase();const actions=st==='approved'?`<button class="small-btn danger-btn" data-action="reject-community-comment" data-id="${esc(x.id)}">Reject</button><button class="small-btn danger-btn" data-action="delete-community-comment" data-id="${esc(x.id)}">Delete</button>`:st==='rejected'?`<button class="small-btn confirm-btn" data-action="approve-community-comment" data-id="${esc(x.id)}">✓ Accept</button><button class="small-btn danger-btn" data-action="delete-community-comment" data-id="${esc(x.id)}">Delete</button>`:`<button class="small-btn confirm-btn" data-action="approve-community-comment" data-id="${esc(x.id)}">✓ Accept</button><button class="small-btn danger-btn" data-action="reject-community-comment" data-id="${esc(x.id)}">Reject</button><button class="small-btn danger-btn" data-action="delete-community-comment" data-id="${esc(x.id)}">Delete</button>`;return `<article class="message-card"><header><div><h3>${esc(x.name||'Traveller')}</h3><small>${st}</small></div><small>${esc(x.created_at?new Date(x.created_at).toLocaleString():'')}</small></header><p>${esc(x.comment||'')}</p><div class="row-actions">${actions}</div></article>`}).join('');
+ }
+}
+async function updateCommunityPhoto(id,status){const {error}=await sb.from('community_photos').update({status}).eq('id',id);if(error){toast(error.message);return}await loadCommunity();renderAll();toast(status==='approved'?'Photo accepted':'Photo rejected')}
+async function deleteCommunityPhoto(id){const x=communityPhotos.find(v=>v.id===id);if(!x)return;if(!confirm(`Delete traveller photo from ${x.name||'Traveller'}? This cannot be undone.`))return;const {error}=await sb.from('community_photos').delete().eq('id',id);if(error){toast(error.message);return}await loadCommunity();renderAll();toast('Photo deleted')}
+async function updateCommunityComment(id,status){const {error}=await sb.from('community_comments').update({status}).eq('id',id);if(error){toast(error.message);return}await loadCommunity();renderAll();toast(status==='approved'?'Comment accepted':'Comment rejected')}
+async function deleteCommunityComment(id){const x=communityComments.find(v=>v.id===id);if(!x)return;if(!confirm(`Delete comment from ${x.name||'Traveller'}? This cannot be undone.`))return;const {error}=await sb.from('community_comments').delete().eq('id',id);if(error){toast(error.message);return}await loadCommunity();renderAll();toast('Comment deleted')}
 async function setBookingStatus(id,next){const b=bookings.find(x=>x.id===id);if(!b)return;const patch={status:next};if(next==='Paid')patch.payment_status='Paid';const {error}=await sb.from('bookings').update(patch).eq('id',id);if(error){toast(error.message);return false}await loadBookings();renderAll();return true}
 async function confirmBooking(id){const b=bookings.find(x=>x.id===id);if(!b)return;if(bookingStatus(b).toLowerCase()!=='pending')return;if(await setBookingStatus(id,'Confirmed'))toast('Booking confirmed')}
 async function cancelBooking(id){const b=bookings.find(x=>x.id===id);if(!b)return;const s=bookingStatus(b).toLowerCase();if(!['confirmed','paid'].includes(s))return;if(!confirm(`Cancel booking ${b.ref||''}?`))return;if(await setBookingStatus(id,'Cancelled'))toast('Booking cancelled')}
@@ -87,7 +177,7 @@ async function deleteBlock(id){if(!confirm('Remove this blackout date?'))return;
 async function toggleVehicle(id){const v=units.find(x=>x.id===id);if(!v)return;const {error}=await sb.from('vehicle_units').update({active:!v.active}).eq('id',id);if(error){toast(error.message);return}await loadUnits();renderAll();toast(v.active?'Vehicle deactivated':'Vehicle activated')}
 function contentModal(key,id){const arr=tables[key]||[],v=id?arr.find(x=>x.id===id):{};const labels={tours:['title','short_description','description','starting_price'],destinations:['name','tagline','description','duration'],pricing:['rule_name','service','amount','currency'],testimonials:['name','country','rating','review'],gallery:['title','image_url','caption','category']};const fields=labels[key];openModal(`<h3>${id?'Edit':'Add'} ${key.replace(/s$/,'')}</h3><form id="contentForm"><div class="modal-grid">${fields.map((f,i)=>{const multi=['description','review','caption'].includes(f);return `<label class="${multi?'full':''}">${esc(f.replace(/_/g,' '))}${multi?`<textarea name="${f}">${esc(v?.[f]||'')}</textarea>`:`<input name="${f}" value="${esc(v?.[f]??'')}" ${f==='title'||f==='name'?'required':''}>`}</label>`}).join('')}</div><div class="modal-actions"><button type="button" class="outline-btn" data-close-modal>Cancel</button><button class="lux-btn compact">Save</button></div></form></div>`);$('#contentForm').addEventListener('submit',async e=>{e.preventDefault();const f=new FormData(e.currentTarget),payload={};fields.forEach(x=>{let val=f.get(x);if(['starting_price','amount','rating'].includes(x)&&val!=='')val=Number(val);payload[x]=val||null});const table=tableMap[key];const q=id?sb.from(table).update(payload).eq('id',id):sb.from(table).insert(payload);const {error}=await q;if(error){toast(error.message);return}closeModal();toast('Content saved');await loadContent();renderAll()})}
 async function deleteContent(key,id){if(!confirm('Delete this content item?'))return;const {error}=await sb.from(tableMap[key]).delete().eq('id',id);if(error){toast(error.message);return}toast('Item deleted');await loadContent();renderAll()}
-function handleActions(e){const b=e.target.closest('[data-action]');if(b){const id=b.dataset.id;switch(b.dataset.action){case'view-booking':bookingModal(id);break;case'status':updateBooking(id);break;case'confirm-booking':confirmBooking(id);break;case'cancel-booking':cancelBooking(id);break;case'delete-booking':deleteBooking(id);break;case'edit-vehicle':vehicleModal(id);break;case'toggle-vehicle':toggleVehicle(id);break;case'delete-block':deleteBlock(id);break;case'edit-content':contentModal(b.dataset.type,id);break;case'delete-content':deleteContent(b.dataset.type,id);break}}if(e.target.matches('[data-close-modal]'))closeModal();if(e.target.matches('[data-modal-status]')){const id=e.target.dataset.modalStatus;closeModal();updateBooking(id)}}
+function handleActions(e){const b=e.target.closest('[data-action]');if(b){const id=b.dataset.id;switch(b.dataset.action){case'view-booking':bookingModal(id);break;case'status':updateBooking(id);break;case'confirm-booking':confirmBooking(id);break;case'cancel-booking':cancelBooking(id);break;case'delete-booking':deleteBooking(id);break;case'edit-vehicle':vehicleModal(id);break;case'toggle-vehicle':toggleVehicle(id);break;case'delete-block':deleteBlock(id);break;case'edit-content':contentModal(b.dataset.type,id);break;case'delete-content':deleteContent(b.dataset.type,id);break;case'approve-traveller-photo':approveTravellerPhoto(id);break;case'reject-traveller-photo':rejectTravellerPhoto(id);break;case'delete-traveller-photo':deleteTravellerPhoto(id);break;case'approve-community-photo':updateCommunityPhoto(id,'approved');break;case'reject-community-photo':updateCommunityPhoto(id,'rejected');break;case'delete-community-photo':deleteCommunityPhoto(id);break;case'approve-community-comment':updateCommunityComment(id,'approved');break;case'reject-community-comment':updateCommunityComment(id,'rejected');break;case'delete-community-comment':deleteCommunityComment(id);break}}if(e.target.matches('[data-close-modal]'))closeModal();if(e.target.matches('[data-modal-status]')){const id=e.target.dataset.modalStatus;closeModal();updateBooking(id)}}
 function openModal(html){$('#modalRoot').innerHTML=`<div class="modal-backdrop"><div class="modal">${html}</div></div>`;$('#modalRoot').querySelector('.modal-backdrop').addEventListener('click',e=>{if(e.target.classList.contains('modal-backdrop'))closeModal()})}
 function closeModal(){$('#modalRoot').innerHTML=''}
 function exportCSV(){const head=['Reference','Name','Phone','Service','Pickup','Destination','Date','Time','Vehicle','Payment Method','Payment Status','Status'];const rows=bookings.map(b=>[b.ref,b.name,b.phone,b.service,b.pickup,b.destination,b.travel_date,b.pickup_time,b.vehicle_unit_name||b.vehicle,b.payment_method,b.payment_status,b.status]);const csv=[head,...rows].map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='elishah-rides-bookings.csv';a.click();URL.revokeObjectURL(a.href)}
