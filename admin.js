@@ -5,7 +5,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),2600)};
 const tableMap={tours:'tour_packages',destinations:'destinations',pricing:'pricing_rules',testimonials:'testimonials',gallery:'gallery_items',messages:'contact_messages'};
-const titles={overview:['OPERATIONS','Good evening, Admin.'],bookings:['JOURNEY MANAGEMENT','Bookings'],fleet:['VEHICLE OPERATIONS','Fleet'],availability:['SCHEDULING','Availability'],customers:['RELATIONSHIPS','Customers'],tours:['CONTENT STUDIO','Tour Packages'],destinations:['SRI LANKA','Destinations'],pricing:['COMMERCIAL CONTROL','Pricing'],testimonials:['SOCIAL PROOF','Testimonials'],gallery:['VISUAL STORY','Gallery'],messages:['CONTACT DESK','Messages']};
+const titles={overview:['OPERATIONS','Good evening, Admin.'],bookings:['JOURNEY MANAGEMENT','Bookings'],fleet:['VEHICLE OPERATIONS','Fleet'],availability:['SCHEDULING','Availability'],customers:['RELATIONSHIPS','Customers'],tours:['CONTENT STUDIO','Tour Packages'],destinations:['SRI LANKA','Destinations'],pricing:['COMMERCIAL CONTROL','Pricing'],testimonials:['SOCIAL PROOF','Testimonials'],gallery:['VISUAL STORY','Gallery'],community:['TRAVELLER COMMUNITY','Community'],messages:['CONTACT DESK','Messages']};
 async function init(){
  try{
   await window.supabaseConfigReady;
@@ -57,7 +57,7 @@ function bind(){
 function showLogin(){ $('#loginView').classList.remove('hidden');$('#appView').classList.add('hidden') }
 function showApp(user){ $('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden');$('#adminEmail').textContent=user?.email||'Admin';loadAll(); }
 async function login(e){e.preventDefault();const r=$('#loginResult');r.textContent='';if(!sb){r.textContent='Admin service is not connected.';return}const {error}=await sb.auth.signInWithPassword({email:$('#loginEmail').value.trim(),password:$('#loginPassword').value});if(error)r.textContent=error.message}
-function go(page){$$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$$('.page').forEach(x=>x.classList.toggle('active',x.id==='page-'+page));$('#pageKicker').textContent=titles[page][0];$('#pageTitle').textContent=titles[page][1];window.scrollTo({top:0,behavior:'smooth'})}
+function go(page){if(!titles[page])return;$$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$$('.page').forEach(x=>x.classList.toggle('active',x.id==='page-'+page));$('#pageKicker').textContent=titles[page][0];$('#pageTitle').textContent=titles[page][1];window.scrollTo({top:0,behavior:'smooth'})}
 function clock(){const d=new Date();try{$('#liveClock').textContent=new Intl.DateTimeFormat('en-LK',{timeZone:'Asia/Colombo',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(d)}catch{}} 
 async function loadAll(){if(!sb)return;toast('Refreshing command center…');await Promise.all([loadBookings(),loadUnits(),loadBlocks(),loadContent(),loadMessages(),loadTravellerPhotos(),loadCommunity()]);renderAll();toast('Dashboard refreshed')}
 async function safeSelect(table,columns='*',order='created_at',limit=300){const q=sb.from(table).select(columns);const r=order?q.order(order,{ascending:false}).limit(limit):await q.limit(limit);return r}
